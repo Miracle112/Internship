@@ -10,11 +10,11 @@
 <?import javafx.scene.layout.AnchorPane?>
 <?import javafx.scene.text.Font?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="635.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="635.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.AdminController">
   <tabs>
-    <Tab text="Управление организациями">
+    <Tab text="Добавление организации">
       <content>
-        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="319.0" prefWidth="635.0">
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="333.0" prefWidth="635.0">
                <children>
                   <TextField fx:id="fullNameField" alignment="CENTER" layoutX="14.0" layoutY="60.0" prefHeight="25.0" prefWidth="608.0" promptText="Полное название организации" />
                   <Label layoutX="225.0" layoutY="14.0" text="Данные организации">
@@ -29,16 +29,16 @@
                   <TextField fx:id="directorNameField" alignment="CENTER" layoutX="15.0" layoutY="192.0" prefHeight="25.0" prefWidth="289.0" promptText="ФИО директора организации" />
                   <TextField fx:id="emailField" alignment="CENTER" layoutX="15.0" layoutY="225.0" prefHeight="25.0" prefWidth="289.0" promptText="Электронная почта" />
                   <TextField fx:id="phoneNumField" alignment="CENTER" layoutX="311.0" layoutY="192.0" prefHeight="25.0" prefWidth="312.0" promptText="Номер телефона" />
-                  <RadioButton fx:id="organizationDataConfirm" layoutX="423.0" layoutY="229.0" mnemonicParsing="false" text="Подтвердить" />
-                  <Label fx:id="oragnizationDataAddWarningLabel" layoutX="142.0" layoutY="267.0" prefHeight="28.0" prefWidth="376.0" textFill="RED">
+                  <Label fx:id="organizationDataAddWarningLabel" alignment="CENTER" layoutX="16.0" layoutY="267.0" prefHeight="28.0" prefWidth="608.0" textFill="RED">
                      <font>
                         <Font size="19.0" />
                      </font>
                   </Label>
+                  <Button fx:id="checkDataButton" layoutX="425.0" layoutY="225.0" mnemonicParsing="false" text="ПРОВЕРИТЬ" />
                </children></AnchorPane>
       </content>
     </Tab>
-      <Tab text="Управление данными нач. отдела кадров">
+      <Tab text="Добавление начальника отдела кадров">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="635.0">
                <children>
@@ -56,15 +56,15 @@
                   <RadioButton fx:id="femaleConfirm" layoutX="477.0" layoutY="71.0" mnemonicParsing="false" text="Женщина" toggleGroup="$sex" />
                   <TextField fx:id="birthDateField" alignment="CENTER" layoutX="485.0" layoutY="105.0" prefHeight="25.0" prefWidth="84.0" promptText="гггг-мм-дд" />
                   <TextField fx:id="bithplaceField" alignment="CENTER" layoutX="14.0" layoutY="105.0" prefHeight="25.0" prefWidth="332.0" promptText="Место рождения" />
-                  <TextField fx:id="residenseAddressField" alignment="CENTER" layoutX="14.0" layoutY="141.0" prefHeight="25.0" prefWidth="610.0" promptText="Адрес проживания" />
+                  <TextField fx:id="residenceAddressField" alignment="CENTER" layoutX="15.0" layoutY="143.0" prefHeight="25.0" prefWidth="608.0" promptText="Адрес проживания" />
                   <Label layoutX="376.0" layoutY="108.0" text="Дата рождения:">
                      <font>
                         <Font size="14.0" />
                      </font>
                   </Label>
-                  <TextField fx:id="registrationAddressField" alignment="CENTER" layoutX="14.0" layoutY="173.0" prefHeight="25.0" prefWidth="610.0" promptText="Адрес регистрации " />
-                  <TextField fx:id="loginField" alignment="CENTER" layoutX="14.0" layoutY="208.0" prefHeight="25.0" prefWidth="299.0" promptText="Логин" />
-                  <TextField fx:id="passwordField" alignment="CENTER" layoutX="320.0" layoutY="208.0" prefHeight="25.0" prefWidth="304.0" promptText="Пароль" />
+                  <TextField fx:id="registrationAddressField" alignment="CENTER" layoutX="14.0" layoutY="177.0" prefHeight="25.0" prefWidth="610.0" promptText="Адрес регистрации " />
+                  <TextField fx:id="loginField" alignment="CENTER" layoutX="14.0" layoutY="211.0" prefHeight="25.0" prefWidth="299.0" promptText="Логин" />
+                  <TextField fx:id="passwordField" alignment="CENTER" layoutX="320.0" layoutY="211.0" prefHeight="25.0" prefWidth="304.0" promptText="Пароль" />
                   <Label fx:id="secondWarningLabel" layoutX="322.0" layoutY="256.0" prefHeight="28.0" prefWidth="304.0" textFill="RED">
                      <font>
                         <Font size="19.0" />
