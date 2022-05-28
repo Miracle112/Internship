@@ -1,11 +1,7 @@
 package com.example.internship;
 
 import javafx.fxml.FXML;
-import javafx.scene.control.Button;
-import javafx.scene.control.Label;
-import javafx.scene.control.RadioButton;
-import javafx.scene.control.TextField;
-import javafx.scene.control.ToggleGroup;
+import javafx.scene.control.*;
 
 import java.util.Objects;
 
@@ -59,7 +55,7 @@ public class AdminController {
     private TextField bithplaceField;
 
     @FXML
-    private TextField birthDateField;
+    private DatePicker birthDatePicker;
 
     @FXML
     private TextField residenceAddressField;
@@ -103,8 +99,9 @@ public class AdminController {
         });
 
         addButton.setOnAction(actionEvent -> {
+            secondWarningLabel.setText("");
             if(Objects.equals(FIOField.getText(), "") | Objects.equals(bithplaceField.getText(), "") |
-                    Objects.equals(birthDateField.getText(), "") | Objects.equals(bithplaceField.getText(), "") |
+                    Objects.equals(birthDatePicker.getUserData(), "") | Objects.equals(bithplaceField.getText(), "") |
                     Objects.equals(residenceAddressField.getText(), "") |
                     Objects.equals(registrationAddressField.getText(), "") | Objects.equals(loginField.getText(), "") |
                     Objects.equals(passwordField.getText(), "")
