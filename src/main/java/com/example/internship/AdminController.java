@@ -34,7 +34,7 @@ public class AdminController {
     private TextField emailField; // переменная текстового поля для хранения эл. почты организации
 
     @FXML
-    private Button checkDataButton; // подтверждение ввода данных организации
+    private CheckBox checkDataButton; // подтверждение ввода данных организации
 
     @FXML
     private Label organizationDataAddWarningLabel; // поле предупреждений текушей вкладки
@@ -82,7 +82,10 @@ public class AdminController {
 
     public void initialize() {
 
-        checkDataButton.setOnAction(actionEvent -> {
+
+
+        checkDataButton.setOnAction(actionEvent -> { // кнопка проверки введённых данных 1й вкладки
+
             isConfirm = false;
             organizationDataAddWarningLabel.setText("");
             if (Objects.equals(fullNameField.getText(), "") | Objects.equals(shortName.getText(), "") |
@@ -93,20 +96,27 @@ public class AdminController {
                     Objects.equals(phoneNumField.getText(), "") |
                     Objects.equals(emailField.getText(), "") ){
                 organizationDataAddWarningLabel.setText("Одно или несколько текстовых полей не заполнено!");
+
             } else {
                 isConfirm = true;
+                editable(false);
+            }
+            if (!checkDataButton.isSelected()){
+                editable(true);
             }
         });
 
-        addButton.setOnAction(actionEvent -> {
+        addButton.setOnAction(actionEvent -> { // кнопка "Добавить" для добавления данных из текстовых полей в БД
             secondWarningLabel.setText("");
             if(Objects.equals(FIOField.getText(), "") | Objects.equals(bithplaceField.getText(), "") |
                     Objects.equals(birthDatePicker.getUserData(), "") | Objects.equals(bithplaceField.getText(), "") |
                     Objects.equals(residenceAddressField.getText(), "") |
                     Objects.equals(registrationAddressField.getText(), "") | Objects.equals(loginField.getText(), "") |
                     Objects.equals(passwordField.getText(), "")
-                    | (!maleConfirm.isSelected() & !femaleConfirm.isSelected() | !isConfirm)){
+                    | (!maleConfirm.isSelected() & !femaleConfirm.isSelected() | !isConfirm)){ // если что-то не так
                 secondWarningLabel.setText("Имеется незаполненное поле!");
+
+            } else { // если всё хорошо, происходит запись данных в БД:
 
             }
 
@@ -115,22 +125,16 @@ public class AdminController {
     }
 
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
+    public void editable(boolean status) { // метод блокировки и разблокировки полей 1-й вкладки
+        fullNameField.setEditable(status);
+        shortName.setEditable(status);
+        INNField.setEditable(status);
+        legalAddressField.setEditable(status);
+        actualAddressField.setEditable(status);
+        directorNameField.setEditable(status);
+        phoneNumField.setEditable(status);
+        emailField.setEditable(status);
+    }
 
 
 }
