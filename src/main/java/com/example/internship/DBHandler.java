@@ -8,11 +8,17 @@ class DBHandler {
     ResultSet resultSet;
 
     public Connection getDbConnection() throws ClassNotFoundException, SQLException {
-        String connectionString = "jdbc:mysql://127.0.0.1:3306/practice";
+        String connectionString = "jdbc:mysql://127.0.0.1:3306/practice"  + "?verifyServerCertificate=false"+
+                "&useSSL=false"+
+                "&requireSSL=false"+
+                "&useLegacyDatetimeCode=false"+
+                "&amp"+
+                "&serverTimezone=UTC";
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-        dbConnection = DriverManager.getConnection(connectionString, "root", "carrbeat");
+       // dbConnection = DriverManager.getConnection(connectionString, "root", "carrbeat"); Миши
+        dbConnection = DriverManager.getConnection(connectionString, "root", "Robbit50!");
         return dbConnection;
     }
 
