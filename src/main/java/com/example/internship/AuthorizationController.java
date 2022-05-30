@@ -67,7 +67,7 @@ public class AuthorizationController {
             }
         });
         close.setOnAction(actionEvent -> close.getScene().getWindow().hide());
-        registration.setOnAction(actionEvent -> open("ДОЛЖНО БЫТЬ ОКНО РЕГИСТРАЦИИ", registration));
+        registration.setOnAction(actionEvent -> open("/com/example/internship/registration.fxml", registration));
     }
 
     private void loginUser(String emailText, String passwordText) throws SQLException {
@@ -84,15 +84,12 @@ public class AuthorizationController {
 
                 id_chief = Integer.valueOf(resultRole.getString(1).substring(resultRole.getString
                         (1).indexOf('_') + 1));// айди бухгалтера
-                System.out.println("Бухгалтер");
-                System.out.println(id_chief);
-                //open("ПУТЬ БУХГАЛТЕРА, login);
+                open("/com/example/internship/accounting.fxml", login);
             }
+            else if(resultRole.getString(1).equals("Администратор")) open("/com/example/internship/admin.fxml", login);
             else{
-                System.out.println("Пользователь");
                 //open("ПУТЬ ОКНА ПОЛЬЗОВАТЕЛЯ", login);
             }
-            System.out.println("Все хорошо");
         }
         else text.setText("Не найден");
     }
