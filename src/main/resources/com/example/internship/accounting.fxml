@@ -7,17 +7,17 @@
 <?import javafx.scene.control.TextField?>
 <?import javafx.scene.layout.AnchorPane?>
 
-<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns:fx="http://javafx.com/fxml/1" xmlns="http://javafx.com/javafx/17" fx:controller="com.example.internship.AccountingController">
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="400.0" prefWidth="600.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.AccountingController">
   <tabs>
       <Tab text="Вакансии">
          <content>
             <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="200.0">
                <children>
                   <TableView fx:id="requestTable" prefHeight="245.0" prefWidth="600.0" />
-                  <Button layoutX="72.0" layoutY="296.0" mnemonicParsing="false" text="Принять" />
-                  <Button layoutX="204.0" layoutY="296.0" mnemonicParsing="false" text="Отклонить" />
-                  <Button layoutX="340.0" layoutY="296.0" mnemonicParsing="false" text="Добавить" />
-                  <Button layoutX="468.0" layoutY="296.0" mnemonicParsing="false" text="Удалить" />
+                  <Button fx:id="acceptBtn" layoutX="72.0" layoutY="296.0" mnemonicParsing="false" text="Принять" />
+                  <Button fx:id="rejectBtn" layoutX="204.0" layoutY="296.0" mnemonicParsing="false" text="Отклонить" />
+                  <Button fx:id="addBtn" layoutX="340.0" layoutY="296.0" mnemonicParsing="false" text="Добавить" />
+                  <Button fx:id="deleteBtn" layoutX="468.0" layoutY="296.0" mnemonicParsing="false" text="Удалить" />
                </children>
             </AnchorPane>
          </content>
