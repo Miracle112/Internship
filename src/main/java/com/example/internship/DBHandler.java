@@ -17,7 +17,7 @@ class DBHandler {
         Class.forName("com.mysql.cj.jdbc.Driver");
 
 
-        dbConnection = DriverManager.getConnection(connectionString, "root", "Mabe.131852!");
+        dbConnection = DriverManager.getConnection(connectionString, "root", "Robbit50!");
         return dbConnection;
     }
 

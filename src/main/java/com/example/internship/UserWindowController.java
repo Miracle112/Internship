@@ -160,10 +160,10 @@ public class UserWindowController {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
                     try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "1234")) {
+                            "root", "Robbit50!")) {
                         PreparedStatement statement = conn.prepareStatement
-                                ("INSERT into contacts(id_employee,id_contact,contact) VALUES(?,?,?)");
-                        statement.setInt(1, 5 /* id_employee */);
+                                ("INSERT into documents(id_employee,id_document_type,number,issue_place,doc_date) VALUES(?,?,?,?,?)");
+                        statement.setInt(1, AuthorizationController.id_employee);
                         statement.setInt(2, DocumentsType.get(documents_combo.getValue()));
                         statement.setString(3, document_number_field.getText());
                         statement.setString(4, issue_place_field.getText());
@@ -210,10 +210,10 @@ public class UserWindowController {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
                     try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "1234")) {
+                            "root", "Robbit50!")) {
                         PreparedStatement statement = conn.prepareStatement
                                 ("INSERT into contacts(id_employee,id_contact,contact) VALUES(?,?,?)");
-                        statement.setInt(1, 5 /* id_employee */);
+                        statement.setInt(1, AuthorizationController.id_employee);
                         statement.setInt(2, SocialNetworkType.get(social_network_combo.getValue()));
                         statement.setString(3, link_field.getText());
                         statement.executeUpdate();
