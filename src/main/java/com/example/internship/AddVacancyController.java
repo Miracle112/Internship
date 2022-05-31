@@ -61,7 +61,9 @@ public class AddVacancyController {
                 e.printStackTrace();
             }
             System.out.println(id_sub);
-            String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES ("+ AuthorizationController.id_chief +",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +"),0,'2022-05-29');";
+            String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES " +
+                    "("+ AuthorizationController.id_chief
+                    +",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +"),0,'" + dateTransformer() + "');";
             System.out.println(requestAdd);
             PreparedStatement prSt = null;
             try {

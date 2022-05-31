@@ -8,7 +8,7 @@
 <?import javafx.scene.text.Text?>
 
 
-<AnchorPane prefHeight="350.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.addVacancyController">
+<AnchorPane prefHeight="350.0" prefWidth="300.0" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.AddVacancyController">
    <children>
       <Text layoutX="77.0" layoutY="31.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Добавить вакансию">
          <font>

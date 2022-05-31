@@ -13,6 +13,7 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 
@@ -204,7 +205,8 @@ public class AccountingController {
             throwables.printStackTrace();
         }
 
-        String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as 'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1;";
+        String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as " +
+                "'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1 AND id_organization = "+ AuthorizationController.id_chief +";";
         try {
             fill(requestPersonnel, requestTable);
         } catch (SQLException throwables) {
@@ -256,7 +258,6 @@ public class AccountingController {
     }
 
     private void open(String path, Button button) {
-        button.getScene().getWindow().hide();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(path));
         try {
@@ -267,7 +268,9 @@ public class AccountingController {
         Parent root = loader.getRoot();
         Stage stage = new Stage();
         stage.setScene((new Scene(root)));
-        stage.show();
+        stage.setTitle("Добавление");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
     }
 
     public Date dateNow() {

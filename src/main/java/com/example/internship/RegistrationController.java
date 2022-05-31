@@ -109,7 +109,7 @@ public class RegistrationController {
                                 throw new RuntimeException(e);
                             }
                             dbHandler.register1(id_employee, mail.getText(), password.getText(), "Пользователь");
-                            open("/com/example/internship/accounting.fxml", Reg_button);
+                            open("/com/example/internship/authorization.fxml", Reg_button);
                         }
                     } catch (SQLException e) {
                         throw new RuntimeException(e);
@@ -135,7 +135,7 @@ public class RegistrationController {
         Stage stage = new Stage();
         stage.setScene((new Scene(root)));
         //stage.getIcons().add(new Image("file:src/main/resources/picture/icon.ico")); Если нужна иконка
-        //stage.setTitle("AMONIC Airlines Automation System"); Если нужен заголовок
+        stage.setTitle("Авторизация");
         stage.show();
     }
 

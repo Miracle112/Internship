@@ -67,7 +67,7 @@ public class AuthorizationController {
             }
         });
         close.setOnAction(actionEvent -> close.getScene().getWindow().hide());
-        registration.setOnAction(actionEvent -> open("/com/example/internship/registration.fxml", registration));
+        registration.setOnAction(actionEvent -> open("/com/example/internship/registration.fxml", registration, "Регистрация"));
     }
 
     private void loginUser(String emailText, String passwordText) throws SQLException {
@@ -84,17 +84,17 @@ public class AuthorizationController {
 
                 id_chief = Integer.valueOf(resultRole.getString(1).substring(resultRole.getString
                         (1).indexOf('_') + 1));// айди бухгалтера
-                open("/com/example/internship/accounting.fxml", login);
+                open("/com/example/internship/accounting.fxml", login, "Отдел кадров");
             }
-            else if(resultRole.getString(1).equals("Администратор")) open("/com/example/internship/admin.fxml", login);
+            else if(resultRole.getString(1).equals("Администратор")) open("/com/example/internship/admin.fxml", login, "Администратор");
             else{
-                //open("ПУТЬ ОКНА ПОЛЬЗОВАТЕЛЯ", login);
+                open("/com/example/internship/userWindow.fxml", login, "Поиск ваканский");
             }
         }
         else text.setText("Не найден");
     }
 
-     private void open(String path, Button button) {
+     private void open(String path, Button button, String title) {
         button.getScene().getWindow().hide();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(path));
@@ -107,7 +107,7 @@ public class AuthorizationController {
         Stage stage = new Stage();
         stage.setScene((new Scene(root)));
         //stage.getIcons().add(new Image("file:src/main/resources/picture/icon.ico")); Если нужна иконка
-        //stage.setTitle("AMONIC Airlines Automation System"); Если нужен заголовок
+        stage.setTitle(title);
         stage.show();
     }
 
