@@ -1,0 +1,80 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.CheckBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.Tab?>
+<?import javafx.scene.control.TabPane?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.control.ToggleGroup?>
+<?import javafx.scene.layout.AnchorPane?>
+<?import javafx.scene.text.Font?>
+
+<TabPane maxHeight="-Infinity" maxWidth="-Infinity" minHeight="-Infinity" minWidth="-Infinity" prefHeight="340.0" prefWidth="635.0" tabClosingPolicy="UNAVAILABLE" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.AdminController">
+  <tabs>
+    <Tab text="Добавление организации">
+      <content>
+        <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="333.0" prefWidth="635.0">
+               <children>
+                  <TextField fx:id="fullNameField" alignment="CENTER" layoutX="14.0" layoutY="60.0" prefHeight="25.0" prefWidth="608.0" promptText="Полное название организации" />
+                  <Label layoutX="225.0" layoutY="14.0" text="Данные организации">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="shortName" alignment="CENTER" layoutX="14.0" layoutY="93.0" prefHeight="25.0" prefWidth="289.0" promptText="Краткое название организации" />
+                  <TextField fx:id="INNField" alignment="CENTER" layoutX="310.0" layoutY="93.0" prefHeight="25.0" prefWidth="312.0" promptText="ИНН организации" />
+                  <TextField fx:id="legalAddressField" alignment="CENTER" layoutX="15.0" layoutY="125.0" prefHeight="25.0" prefWidth="608.0" promptText="Юридический адрес организации" />
+                  <TextField fx:id="actualAddressField" alignment="CENTER" layoutX="15.0" layoutY="158.0" prefHeight="25.0" prefWidth="608.0" promptText="Фактический адрес организации" />
+                  <TextField fx:id="directorNameField" alignment="CENTER" layoutX="15.0" layoutY="192.0" prefHeight="25.0" prefWidth="289.0" promptText="ФИО директора организации" />
+                  <TextField fx:id="emailField" alignment="CENTER" layoutX="15.0" layoutY="225.0" prefHeight="25.0" prefWidth="289.0" promptText="Электронная почта" />
+                  <TextField fx:id="phoneNumField" alignment="CENTER" layoutX="311.0" layoutY="192.0" prefHeight="25.0" prefWidth="312.0" promptText="Номер телефона" />
+                  <Label fx:id="organizationDataAddWarningLabel" alignment="CENTER" layoutX="16.0" layoutY="267.0" prefHeight="28.0" prefWidth="608.0" textFill="RED">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+                  <CheckBox fx:id="checkDataButton" layoutX="421.0" layoutY="229.0" mnemonicParsing="false" text="Подтвердить" />
+               </children></AnchorPane>
+      </content>
+    </Tab>
+      <Tab text="Добавление начальника отдела кадров">
+         <content>
+            <AnchorPane minHeight="0.0" minWidth="0.0" prefHeight="180.0" prefWidth="635.0">
+               <children>
+                  <Label layoutX="164.0" layoutY="14.0" text="Данные начальника отдела кадров">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+                  <TextField fx:id="FIOField" alignment="CENTER" layoutX="14.0" layoutY="67.0" prefHeight="25.0" prefWidth="332.0" promptText="ФИО" />
+                  <RadioButton fx:id="maleConfirm" layoutX="393.0" layoutY="71.0" mnemonicParsing="false" text="Мужчина">
+                     <toggleGroup>
+                        <ToggleGroup fx:id="sex" />
+                     </toggleGroup>
+                  </RadioButton>
+                  <RadioButton fx:id="femaleConfirm" layoutX="480.0" layoutY="71.0" mnemonicParsing="false" text="Женщина" toggleGroup="$sex" />
+                  <TextField fx:id="bithplaceField" alignment="CENTER" layoutX="14.0" layoutY="105.0" prefHeight="25.0" prefWidth="332.0" promptText="Место рождения" />
+                  <TextField fx:id="residenceAddressField" alignment="CENTER" layoutX="15.0" layoutY="143.0" prefHeight="25.0" prefWidth="608.0" promptText="Адрес проживания" />
+                  <TextField fx:id="registrationAddressField" alignment="CENTER" layoutX="14.0" layoutY="177.0" prefHeight="25.0" prefWidth="610.0" promptText="Адрес регистрации " />
+                  <TextField fx:id="loginField" alignment="CENTER" layoutX="14.0" layoutY="211.0" prefHeight="25.0" prefWidth="299.0" promptText="Логин" />
+                  <TextField fx:id="passwordField" alignment="CENTER" layoutX="320.0" layoutY="211.0" prefHeight="25.0" prefWidth="304.0" promptText="Пароль" />
+                  <Label fx:id="secondWarningLabel" layoutX="322.0" layoutY="256.0" prefHeight="28.0" prefWidth="304.0" textFill="RED">
+                     <font>
+                        <Font size="19.0" />
+                     </font>
+                  </Label>
+                  <Button fx:id="addButton" layoutX="113.0" layoutY="255.0" mnemonicParsing="false" prefHeight="31.0" prefWidth="103.0" text="Добавить" textAlignment="CENTER" textFill="#0a0a0a">
+                     <font>
+                        <Font size="15.0" />
+                     </font>
+                  </Button>
+                  <DatePicker fx:id="birthDatePicker" layoutX="387.0" layoutY="105.0" promptText="Дата рождения" />
+               </children>
+            </AnchorPane>
+         </content>
+      </Tab>
+  </tabs>
+</TabPane>
