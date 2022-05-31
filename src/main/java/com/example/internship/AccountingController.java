@@ -5,19 +5,27 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.TextField;
 import javafx.scene.input.KeyCode;
+import javafx.stage.Stage;
 import javafx.util.Callback;
 
+import java.io.IOException;
+import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
-import java.sql.Statement;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 
 public class AccountingController {
+    Date date;
 
     @FXML
     private Button acceptBtn;
@@ -54,7 +62,10 @@ public class AccountingController {
 
     @FXML
     void initialize() {
+        dateNow();
         DBHandler dbHandler = new DBHandler();
+
+        addBtn.setOnAction(actionEvent -> open("addVacancy.fxml", addBtn));
 
         deleteBtn.setOnAction(event -> {
             // удаление из таблицы
@@ -80,7 +91,7 @@ public class AccountingController {
             // изменение job_status на 2
             ObservableList id_del = requestTable.getSelectionModel().getSelectedItem();
             Object id_del_index = id_del.get(0);
-            String request = "UPDATE personnel SET job_status = 2 WHERE(id_personal = " + id_del_index + ")";
+            String request = "UPDATE personnel SET job_status = 2, date_to = '" + date + "' WHERE(id_personal = " + id_del_index + ")";
             try {
                 PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
                 prSt.executeUpdate();
@@ -100,7 +111,7 @@ public class AccountingController {
             // изменение job_status на 0
             ObservableList id_del = requestTable.getSelectionModel().getSelectedItem();
             Object id_del_index = id_del.get(0);
-            String request = "UPDATE personnel SET job_status = 0 WHERE(id_personal = " + id_del_index + ")";
+            String request = "UPDATE personnel SET job_status = 0, id_employee = NULL WHERE(id_personal = " + id_del_index + ")";
             try {
                 PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
                 prSt.executeUpdate();
@@ -117,27 +128,76 @@ public class AccountingController {
         });
 
         search1.getParent().setOnKeyPressed(keyEvent -> {
-            if (keyEvent.getCode()== KeyCode.ENTER){
+            if (keyEvent.getCode() == KeyCode.ENTER) {
                 String text = search1.getText();
-                requestTable.getItems().clear();
-                String request = "SELECT * FROM person WHERE full_name = '" + text + "'";
-                System.out.println(request);
-                personTable.getItems().clear();
-                try {
-                    PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
-                    prSt.executeQuery();
-                } catch (SQLException | ClassNotFoundException e) {
-                    e.printStackTrace();
-                }
-                try {
-                    fill(request, personTable);
-                } catch (SQLException throwables) {
-                    throwables.printStackTrace();
+                if (text == "") {
+                    String requestPerson = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person;";
+                    personTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestPerson);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(requestPerson, personTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                } else {
+                    String request = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person WHERE full_name = '" + text + "'";
+                    personTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(request, personTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
                 }
             }
         });
 
-        String requestPerson = "SELECT * FROM person";
+        search2.getParent().setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                String text = search2.getText();
+                if (text == "") {
+                    String requestDoc = "SELECT (select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents;";
+                    personTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestDoc);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(requestDoc, docTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                } else {
+                    String request = "SELECT(select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents where (select full_name from person where documents.id_employee = person.id_employee) = '" + text + "';";
+                    personTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(request, docTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        String requestPerson = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person;";
         try {
             fill(requestPerson, personTable);
         } catch (SQLException throwables) {
@@ -151,7 +211,7 @@ public class AccountingController {
             throwables.printStackTrace();
         }
 
-        String requestDoc = "SELECT * FROM documents";
+        String requestDoc = "SELECT (select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents;";
         try {
             fill(requestDoc, docTable);
         } catch (SQLException throwables) {
@@ -176,7 +236,7 @@ public class AccountingController {
             TableColumn col = new TableColumn(resultSet.getMetaData().getColumnLabel(i + 1));
             col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                    if(param.getValue().get(j) == null){
+                    if (param.getValue().get(j) == null) {
                         return new SimpleStringProperty("");
                     } else {
                         return new SimpleStringProperty(param.getValue().get(j).toString());
@@ -193,5 +253,27 @@ public class AccountingController {
             data.add(row);
         }
         personalDataTable1.setItems(data);
+    }
+
+    private void open(String path, Button button) {
+        button.getScene().getWindow().hide();
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(path));
+        try {
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene((new Scene(root)));
+        stage.show();
+    }
+
+    public Date dateNow() {
+        LocalDate localDate = LocalDate.now();
+        String formattedDate = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+        date = Date.valueOf(formattedDate);
+        return date;
     }
 }
