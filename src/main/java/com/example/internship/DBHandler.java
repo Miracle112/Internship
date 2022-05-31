@@ -3,11 +3,10 @@ package com.example.internship;
 import java.sql.*;
 
 class DBHandler {
-    Connection dbConnection;
-    Statement statement;
+    static Connection dbConnection;
     ResultSet resultSet;
 
-    public Connection getDbConnection() throws ClassNotFoundException, SQLException {
+    public static Connection getDbConnection() throws ClassNotFoundException, SQLException {
         String connectionString = "jdbc:mysql://127.0.0.1:3306/practice"  + "?verifyServerCertificate=false"+
                 "&useSSL=false"+
                 "&requireSSL=false"+
@@ -17,8 +16,8 @@ class DBHandler {
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-       // dbConnection = DriverManager.getConnection(connectionString, "root", "carrbeat"); Миши
-        dbConnection = DriverManager.getConnection(connectionString, "root", "Robbit50!");
+
+        dbConnection = DriverManager.getConnection(connectionString, "root", "Mabe.131852!");
         return dbConnection;
     }
 
@@ -49,9 +48,7 @@ class DBHandler {
             prSt.setString(6, registration_address);
 
             prSt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -67,9 +64,7 @@ class DBHandler {
             prSt.setString(4, role);
 
             prSt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -93,7 +88,6 @@ class DBHandler {
             e.printStackTrace();
         }
         return resSet;
-
     }
 
     public ResultSet  checkUser(String mail){
@@ -109,10 +103,7 @@ class DBHandler {
             e.printStackTrace();
         }
         return resSet;
-
     }
-
-
 
 
 }
