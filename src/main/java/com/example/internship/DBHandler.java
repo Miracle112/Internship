@@ -3,11 +3,10 @@ package com.example.internship;
 import java.sql.*;
 
 class DBHandler {
-    Connection dbConnection;
-    Statement statement;
+    static Connection dbConnection;
     ResultSet resultSet;
 
-    public Connection getDbConnection() throws ClassNotFoundException, SQLException {
+    public static Connection getDbConnection() throws ClassNotFoundException, SQLException {
         String connectionString = "jdbc:mysql://127.0.0.1:3306/practice"  + "?verifyServerCertificate=false"+
                 "&useSSL=false"+
                 "&requireSSL=false"+
@@ -93,7 +92,6 @@ class DBHandler {
             e.printStackTrace();
         }
         return resSet;
-
     }
 
     public ResultSet  checkUser(String mail){
@@ -109,10 +107,11 @@ class DBHandler {
             e.printStackTrace();
         }
         return resSet;
-
     }
 
-
-
-
+    public static Connection getConnection() throws SQLException {
+        Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1/practice",
+                "root", "carrbeat");
+        return connection;
+    }
 }
