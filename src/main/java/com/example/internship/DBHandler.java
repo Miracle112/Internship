@@ -16,8 +16,8 @@ class DBHandler {
 
         Class.forName("com.mysql.cj.jdbc.Driver");
 
-       // dbConnection = DriverManager.getConnection(connectionString, "root", "carrbeat"); Миши
-        dbConnection = DriverManager.getConnection(connectionString, "root", "Robbit50!");
+
+        dbConnection = DriverManager.getConnection(connectionString, "root", "Mabe.131852!");
         return dbConnection;
     }
 
@@ -48,9 +48,7 @@ class DBHandler {
             prSt.setString(6, registration_address);
 
             prSt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -66,9 +64,7 @@ class DBHandler {
             prSt.setString(4, role);
 
             prSt.executeUpdate();
-        } catch (SQLException e) {
-            e.printStackTrace();
-        } catch (ClassNotFoundException e) {
+        } catch (SQLException | ClassNotFoundException e) {
             e.printStackTrace();
         }
     }
@@ -109,9 +105,5 @@ class DBHandler {
         return resSet;
     }
 
-    public static Connection getConnection() throws SQLException {
-        Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1/practice",
-                "root", "carrbeat");
-        return connection;
-    }
+
 }

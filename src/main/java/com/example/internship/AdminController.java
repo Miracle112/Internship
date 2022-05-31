@@ -174,7 +174,7 @@ public class AdminController {
         int idEmployee = 0;
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "carrbeat")) {
+                "root", "Mabe.131852")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
             while (resultSet.next()) {
@@ -188,7 +188,7 @@ public class AdminController {
         String request = "INSERT INTO person (id_employee, full_name, male, birth_date, birth_plase, " +
                 "residence_address, registration_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
 
-        DBHandler.getConnection().prepareStatement(request);
+        DBHandler.getDbConnection().prepareStatement(request);
         PreparedStatement preparedStatement;
 
         try {
@@ -208,7 +208,7 @@ public class AdminController {
         // вставка в таблицу "users"
         request = "INSERT users (id_employee, email, password) VALUES(?, ?, ?)";
 
-        DBHandler.getConnection().prepareStatement(request);
+        DBHandler.getDbConnection().prepareStatement(request);
         PreparedStatement preparedStatementTwo;
 
         try {
@@ -250,7 +250,7 @@ public class AdminController {
         int idOrganization = 0;
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "carrbeat")) {
+                "root", "Mabe.131852")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM organization");
             while (resultSet.next()) {
@@ -262,7 +262,7 @@ public class AdminController {
         String secRequest = "INSERT INTO organization (id_organization, full_name, short_name, INN, legal_address, " +
                 "actual_address, director, number, email) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
 
-        DBHandler.getConnection().prepareStatement(secRequest);
+        DBHandler.getDbConnection().prepareStatement(secRequest);
         PreparedStatement preparedStatement;
 
         try {
