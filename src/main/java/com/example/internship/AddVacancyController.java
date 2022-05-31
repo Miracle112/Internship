@@ -14,7 +14,7 @@ import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 
-public class addVacancyController {
+public class AddVacancyController {
 
     @FXML
     private Button addBtn;
@@ -60,11 +60,8 @@ public class addVacancyController {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-
-            int id_chief = 1; // aaksdpkaslpdkaskdlpaskpdkapdkpaksdpkpk fix
-
             System.out.println(id_sub);
-            String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES (2,(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +"),0,'2022-05-29');";
+            String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES ("+ AuthorizationController.id_chief +",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +"),0,'2022-05-29');";
             System.out.println(requestAdd);
             PreparedStatement prSt = null;
             try {
