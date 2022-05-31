@@ -57,7 +57,7 @@ public class AdminController {
     private RadioButton femaleConfirm; // выбор пола
 
     @FXML
-    private TextField bithplaceField; // переменная текстового поля для хранения информации о месте рождении
+    private TextField bithplaceField; // переменная текстового поля для хранения информации о месте рождения
 
     @FXML
     private DatePicker birthDatePicker; // календарь с возможностью выбора конкретной даты
@@ -79,8 +79,8 @@ public class AdminController {
 
     @FXML
     private Label secondWarningLabel; // поле для вывода ошибок
-
-    boolean isConfirm;
+    int idOrganization = 0;
+    boolean isConfirm = false;
 
     public void initialize() {
 
@@ -109,11 +109,11 @@ public class AdminController {
         addButton.setOnAction(actionEvent -> { // кнопка "Добавить" для добавления данных из текстовых полей в БД
             secondWarningLabel.setText("");
             if(Objects.equals(FIOField.getText(), "") | Objects.equals(bithplaceField.getText(), "") |
-                    Objects.equals(birthDatePicker.getUserData(), "") | Objects.equals(bithplaceField.getText(), "") |
+                    Objects.equals(birthDatePicker.getUserData(), "") |
                     Objects.equals(residenceAddressField.getText(), "") |
                     Objects.equals(registrationAddressField.getText(), "") | Objects.equals(loginField.getText(), "") |
                     Objects.equals(passwordField.getText(), "")
-                    | (!maleConfirm.isSelected() & !femaleConfirm.isSelected() | !isConfirm)){ // если что-то не так
+                    | (!maleConfirm.isSelected() & !femaleConfirm.isSelected()) | !isConfirm){ // если что-то не так
                 secondWarningLabel.setText("Имеется незаполненное поле!");
 
             } else { // если всё хорошо, происходит запись данных в БД:
@@ -127,27 +127,28 @@ public class AdminController {
                          InstantiationException | IllegalAccessException e) {
                     throw new RuntimeException(e);
                 }
-            }
 
-            // данные начальника отдела кадров
-            byte gender;
-            if(maleConfirm.isSelected()){
-                gender = 1;
-                femaleConfirm.setSelected(false);
-            } else {
-                gender = 0;
-            }
-            LocalDate localDate;
-            localDate = birthDatePicker.getValue();
-            String dateFormatted = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-            Date birthDate = Date.valueOf(dateFormatted);
+                // данные начальника отдела кадров
+                byte gender;
+                if(maleConfirm.isSelected()){
+                    gender = 1;
+                    femaleConfirm.setSelected(false);
+                } else {
+                    gender = 0;
+                }
+                LocalDate localDate;
+                localDate = birthDatePicker.getValue();
+                String dateFormatted = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                Date birthDate = Date.valueOf(dateFormatted);
 
-            try {
-                addHeadOfHumanResourcesDepartment(FIOField.getText(), gender, birthDate, bithplaceField.getText(),
-                        residenceAddressField.getText(), registrationAddressField.getText());
-            } catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                     InstantiationException | IllegalAccessException e) {
-                throw new RuntimeException(e);
+                try {
+                    addHeadOfHumanResourcesDepartment(FIOField.getText(), gender, birthDate, bithplaceField.getText(),
+                            residenceAddressField.getText(), registrationAddressField.getText());
+                } catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
+                         InstantiationException | IllegalAccessException e) {
+                    throw new RuntimeException(e);
+                }
+
             }
 
         });
@@ -174,7 +175,7 @@ public class AdminController {
         int idEmployee = 0;
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "Robbit50!")) {
+                "root", "carrbeat")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
             while (resultSet.next()) {
@@ -206,7 +207,7 @@ public class AdminController {
         }
 
         // вставка в таблицу "users"
-        request = "INSERT users (id_employee, email, password) VALUES(?, ?, ?)";
+        request = "INSERT users (id_employee, email, password, `role`) VALUES(?, ?, ?, ?)";
 
         DBHandler.getDbConnection().prepareStatement(request);
         PreparedStatement preparedStatementTwo;
@@ -216,6 +217,7 @@ public class AdminController {
             preparedStatementTwo.setInt(1, idEmployee);
             preparedStatementTwo.setString(2, emailField.getText());
             preparedStatementTwo.setString(3, passwordField.getText());
+            preparedStatementTwo.setString(4, "Нач. отдела кадров" + "_" + idOrganization);
             preparedStatementTwo.executeUpdate();
         } catch (SQLException | ClassNotFoundException throwable) {
             throwable.printStackTrace();
@@ -247,10 +249,9 @@ public class AdminController {
                                 String actualAddress, String directorName, String phoneNum, String email)
             throws SQLException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
 
-        int idOrganization = 0;
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "Robbit50!")) {
+                "root", "carrbeat")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM organization");
             while (resultSet.next()) {

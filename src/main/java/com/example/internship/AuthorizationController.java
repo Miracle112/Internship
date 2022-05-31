@@ -80,10 +80,10 @@ public class AuthorizationController {
         ResultSet resultRole = dbHandler.querry(getRole);
         if(resultCheckUser.next() && resultGetID.next() && resultRole.next()){
             id_employee = resultGetID.getInt(1); // записывает айди авторизованного пользователя
-            if(resultRole.getString(1).contains("Бухгалтер")){
+            if(resultRole.getString(1).contains("Нач. отдела кадров")){
 
                 id_chief = Integer.valueOf(resultRole.getString(1).substring(resultRole.getString
-                        (1).indexOf('_') + 1));// айди бухгалтера
+                        (1).indexOf('_') + 1)); // id начальника отдела кадров
                 open("/com/example/internship/accounting.fxml", login, "Отдел кадров");
             }
             else if(resultRole.getString(1).equals("Администратор")) open("/com/example/internship/admin.fxml", login, "Администратор");

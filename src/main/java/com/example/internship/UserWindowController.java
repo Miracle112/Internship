@@ -160,7 +160,7 @@ public class UserWindowController {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
                     try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "Robbit50!")) {
+                            "root", "carrbeat")) {
                         PreparedStatement statement = conn.prepareStatement
                                 ("INSERT into documents(id_employee,id_document_type,number,issue_place,doc_date) VALUES(?,?,?,?,?)");
                         statement.setInt(1, AuthorizationController.id_employee);
@@ -210,7 +210,7 @@ public class UserWindowController {
                 try {
                     Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
                     try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "Robbit50!")) {
+                            "root", "carrbeat")) {
                         PreparedStatement statement = conn.prepareStatement
                                 ("INSERT into contacts(id_employee,id_contact,contact) VALUES(?,?,?)");
                         statement.setInt(1, AuthorizationController.id_employee);
