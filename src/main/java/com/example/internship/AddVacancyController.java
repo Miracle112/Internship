@@ -3,10 +3,16 @@ package com.example.internship;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
+import javafx.fxml.FXMLLoader;
+import javafx.scene.Parent;
+import javafx.scene.Scene;
 import javafx.scene.control.Button;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
+import javafx.stage.Modality;
+import javafx.stage.Stage;
 
+import java.io.IOException;
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
@@ -72,6 +78,8 @@ public class AddVacancyController {
             } catch (SQLException | ClassNotFoundException e) {
                 e.printStackTrace();
             }
+            addBtn.getScene().getWindow().hide();
+            open("/com/example/internship/accounting.fxml", addBtn);
         });
 
     }
@@ -94,5 +102,21 @@ public class AddVacancyController {
         String formattedDate = dateLD.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
         date = Date.valueOf(formattedDate);
         return date;
+    }
+
+    private void open(String path, Button button) {
+        FXMLLoader loader = new FXMLLoader();
+        loader.setLocation(getClass().getResource(path));
+        try {
+            loader.load();
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+        Parent root = loader.getRoot();
+        Stage stage = new Stage();
+        stage.setScene((new Scene(root)));
+        stage.setTitle("Добавление");
+        stage.initModality(Modality.APPLICATION_MODAL);
+        stage.showAndWait();
     }
 }

@@ -66,7 +66,10 @@ public class AccountingController {
         dateNow();
         DBHandler dbHandler = new DBHandler();
 
-        addBtn.setOnAction(actionEvent -> open("addVacancy.fxml", addBtn));
+        addBtn.setOnAction(event-> {
+            addBtn.getScene().getWindow().hide();
+            open("addVacancy.fxml", addBtn);
+        });
 
         deleteBtn.setOnAction(event -> {
             // удаление из таблицы
@@ -168,7 +171,7 @@ public class AccountingController {
                 String text = search2.getText();
                 if (text == "") {
                     String requestDoc = "SELECT (select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents;";
-                    personTable.getItems().clear();
+                    docTable.getItems().clear();
                     try {
                         PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestDoc);
                         prSt.executeQuery();
@@ -182,7 +185,7 @@ public class AccountingController {
                     }
                 } else {
                     String request = "SELECT(select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents where (select full_name from person where documents.id_employee = person.id_employee) = '" + text + "';";
-                    personTable.getItems().clear();
+                    docTable.getItems().clear();
                     try {
                         PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
                         prSt.executeQuery();
@@ -191,6 +194,41 @@ public class AccountingController {
                     }
                     try {
                         fill(request, docTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                }
+            }
+        });
+
+        search3.getParent().setOnKeyPressed(keyEvent -> {
+            if (keyEvent.getCode() == KeyCode.ENTER) {
+                String text = search3.getText();
+                if (text == "") {
+                    String requestLab = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book;";
+                    labTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestLab);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(requestLab, labTable);
+                    } catch (SQLException throwables) {
+                        throwables.printStackTrace();
+                    }
+                } else {
+                    String request = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book WHERE (select full_name from person where labor_book.id_employee = person.id_employee) = '" + text + "';";
+                    labTable.getItems().clear();
+                    try {
+                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
+                        prSt.executeQuery();
+                    } catch (SQLException | ClassNotFoundException e) {
+                        e.printStackTrace();
+                    }
+                    try {
+                        fill(request, labTable);
                     } catch (SQLException throwables) {
                         throwables.printStackTrace();
                     }
@@ -220,7 +258,7 @@ public class AccountingController {
             throwables.printStackTrace();
         }
 
-        String requestLab = "SELECT * FROM labor_book";
+        String requestLab = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book;";
         try {
             fill(requestLab, labTable);
         } catch (SQLException throwables) {
