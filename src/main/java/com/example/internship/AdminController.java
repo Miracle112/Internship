@@ -175,7 +175,7 @@ public class AdminController {
         int idEmployee = 0;
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "carrbeat")) {
+                "root", "Robbit50!")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
             while (resultSet.next()) {
@@ -251,7 +251,7 @@ public class AdminController {
 
         Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
         try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "carrbeat")) {
+                "root", "Robbit50!")) {
             Statement statement = connection.createStatement();
             ResultSet resultSet = statement.executeQuery("SELECT * FROM organization");
             while (resultSet.next()) {
