@@ -1,10 +1,5 @@
 package com.example.internship;
 
-import java.io.IOException;
-import java.net.URL;
-import java.sql.ResultSet;
-import java.sql.SQLException;
-import java.util.ResourceBundle;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
@@ -14,9 +9,17 @@ import javafx.scene.control.Label;
 import javafx.scene.control.PasswordField;
 import javafx.scene.control.TextField;
 import javafx.stage.Stage;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
+import ru.internship.hibernate.HibernateUtil;
+import ru.internship.hibernate.entity.Users;
+
+import java.io.IOException;
+import java.net.URL;
+import java.sql.SQLException;
+import java.util.ResourceBundle;
 
 public class AuthorizationController {
-
     @FXML
     private ResourceBundle resources;
 
@@ -71,23 +74,25 @@ public class AuthorizationController {
     }
 
     private void loginUser(String emailText, String passwordText) throws SQLException {
-        DBHandler dbHandler = new DBHandler();
-        String checkUser = "SELECT * FROM users WHERE email= '" + emailText + "'" + " AND password='" + passwordText + "'";
-        String getID = "SELECT id_employee FROM users WHERE email= '" + emailText + "'" + " AND password='" + passwordText + "'";
-        String getRole = "SELECT role FROM users WHERE email= '" + emailText + "'" + " AND password='" + passwordText + "'";
-        ResultSet resultCheckUser = dbHandler.querry(checkUser);
-        ResultSet resultGetID = dbHandler.querry(getID);
-        ResultSet resultRole = dbHandler.querry(getRole);
-        if(resultCheckUser.next() && resultGetID.next() && resultRole.next()){
-            id_employee = resultGetID.getInt(1); // записывает айди авторизованного пользователя
-            if(resultRole.getString(1).contains("Нач. отдела кадров")){
-
-                id_chief = Integer.valueOf(resultRole.getString(1).substring(resultRole.getString
-                        (1).indexOf('_') + 1)); // id начальника отдела кадров
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        session.getTransaction().begin();
+        Users users = new Users();
+        users.setEmail(emailText);
+        users.setPassword(passwordText);
+        Query query=session.createQuery("from Users where email=:email and password=:password");
+        query.setParameter("email", emailText);
+        query.setParameter("password", passwordText);
+        Users user =(Users)query.uniqueResult();
+        if(user != null){
+            id_employee = user.getIdEmployee(); // записывает айди авторизованного пользователя
+            if(user.getRole().contains("Нач. отдела кадров")){
+                id_chief = Integer.valueOf(user.getRole().substring(user.getRole().indexOf('_') + 1)); // id начальника отдела кадров
+                System.out.println(id_chief);
                 open("/com/example/internship/accounting.fxml", login, "Отдел кадров");
             }
-            else if(resultRole.getString(1).equals("Администратор")) open("/com/example/internship/admin.fxml", login, "Администратор");
+            else if(user.getRole().equals("Администратор")) open("/com/example/internship/admin.fxml", login, "Администратор");
             else{
+                System.out.println(id_employee);
                 open("/com/example/internship/userWindow.fxml", login, "Поиск ваканский");
             }
         }
