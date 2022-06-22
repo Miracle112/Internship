@@ -1,19 +1,20 @@
 package com.example.internship;
 
-import javafx.event.ActionEvent;
-import javafx.event.EventHandler;
 import javafx.fxml.FXML;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
 import javafx.stage.Stage;
+import org.hibernate.Session;
+import org.hibernate.query.Query;
+import ru.internship.hibernate.HibernateUtil;
+import ru.internship.hibernate.entity.Person;
+import ru.internship.hibernate.entity.Users;
 
 import java.io.IOException;
 import java.net.URL;
 import java.sql.Date;
-import java.sql.ResultSet;
-import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.ResourceBundle;
@@ -27,7 +28,7 @@ public class RegistrationController {
     private URL location;
 
     @FXML
-    private TextField Name;
+    private TextField name;
 
     @FXML
     private RadioButton female;
@@ -36,19 +37,19 @@ public class RegistrationController {
     private RadioButton male;
 
     @FXML
-    private Button Reg_button;
+    private Button reg_button;
 
     @FXML
     private DatePicker birth_date;
 
     @FXML
-    private TextField birth_plase;
+    private TextField birth_place;
 
     @FXML
-    private TextField mail;
+    private TextField email;
 
     @FXML
-    private Label Label;
+    private Label label;
 
     @FXML
     private TextField password;
@@ -64,65 +65,94 @@ public class RegistrationController {
 
     Date date;
     LocalDate dateLD;
-    DBHandler dbHandler = new DBHandler();
-
     public static int id_employee;
+    String formattedDate;
+
 
     @FXML
     void initialize() {
 
         back.setOnAction(event -> {
             open("/com/example/internship/authorization.fxml", back);
-
         });
 
-        Reg_button.setOnAction(new EventHandler<ActionEvent>() {
-            @Override
-            public void handle(ActionEvent event) {
-                dateLD = birth_date.getValue();
-                String formattedDate = dateLD.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
-                date = Date.valueOf(formattedDate);
-                String gender = "";
-                if (male.isSelected())
-                    gender = "1";
-                else
-                    gender = "0";
-
-                if(!Name.getText().equals("") && !gender.equals("") && !date.equals("") && !birth_plase.equals("")
-                && !registration_address.equals("") && !registration_address.equals("") && !mail.equals("") && !password.equals("")){ // Проверяет введенные даныне на пустоту
-                    ResultSet resultCheckUser = dbHandler.checkUser(mail.getText());
-                    try {
-                        if(resultCheckUser.next()){
-                            Label.setText("Пользователь существует");
-                        }
-                        else{
-                            dbHandler.register(Name.getText(), gender, date, birth_plase.getText(),
-                                    residence_address.getText(), registration_address.getText());
-
-                            ResultSet resultGetID = dbHandler.getUserID(Name.getText(), gender, date, birth_plase.getText(),
-                                    residence_address.getText(), registration_address.getText());
-                            try {
-                                if(resultGetID.next()){
-                                    id_employee = resultGetID.getInt(1); // записывает айди авторизованного пользователя
-                                }
-                            } catch (SQLException e) {
-                                throw new RuntimeException(e);
-                            }
-                            dbHandler.register1(id_employee, mail.getText(), password.getText(), "Пользователь");
-                            open("/com/example/internship/authorization.fxml", Reg_button);
-                        }
-                    } catch (SQLException e) {
-                        throw new RuntimeException(e);
-                    }
-                }
-                else {
-                    Label.setText("Вы что-то не ввели");
-                }
-
-            }
+        reg_button.setOnAction(event -> {
+            handle();
         });
+
     }
-    public void open(String path, Button button) {
+
+    private void handle() {
+        dateLD = birth_date.getValue();
+        if(dateLD != null){
+            formattedDate = dateLD.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+            date = Date.valueOf(formattedDate);
+        }
+        else {
+            label.setText("Вы что-то не ввели");
+        }
+        int gender = 3;
+        if (male.isSelected()) gender = 1;
+        else if(female.isSelected()) gender = 0;
+
+        if (!name.getText().equals("") && !birth_place.getText().equals("")
+                && !registration_address.getText().equals("") && !registration_address.getText().equals("") &&
+                !email.getText().equals("") && !password.getText().equals("") && gender != 3 && dateLD != null) { // Проверяет введенные даныне на пустоту
+
+
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+
+            Query query = session.createQuery("from Users where email=:email and password=:password");
+            query.setParameter("email", email.getText());
+            query.setParameter("password", password.getText());
+            Users user =(Users)query.uniqueResult();
+
+            if (user != null) {
+                session.close();
+                HibernateUtil.close();
+                label.setText("Пользователь существует");
+            }
+            else {
+
+                Person person = new Person();
+                person.setFullName(name.getText());
+                person.setMale(gender);
+                person.setBirthDate(date);
+                person.setBirthPlase(birth_place.getText());
+                person.setResidenceAddress(residence_address.getText());
+                person.setRegistrationAddress(registration_address.getText());
+                session.save(person);
+
+                Query queryTwo = session.createQuery("from Person where fullName=:fullname and male=:male and birthPlase=:birthPlace and" +
+                        " birthDate=:birthDate and residenceAddress=:residenceAddress and registrationAddress =:registrationAddress");
+                queryTwo.setParameter("fullname", name.getText());
+                queryTwo.setParameter("male", gender);
+                queryTwo.setParameter("birthDate", date);
+                queryTwo.setParameter("birthPlace", birth_place.getText());
+                queryTwo.setParameter("residenceAddress", residence_address.getText());
+                queryTwo.setParameter("registrationAddress", registration_address.getText());
+                person = (Person) queryTwo.uniqueResult();
+                id_employee = person.getIdEmployee(); // записывает айди авторизованного пользователя
+
+                Users users = new Users();
+                users.setIdEmployee(id_employee);
+                users.setEmail(email.getText());
+                users.setPassword(password.getText());
+                users.setRole("Пользователь");
+                session.save(users);
+                session.getTransaction().commit();
+
+                session.close();
+                HibernateUtil.close();
+                open("/com/example/internship/authorization.fxml", reg_button);
+            }
+        } else {
+            label.setText("Вы что-то не ввели");
+        }
+    }
+
+    private void open(String path, Button button) {
         button.getScene().getWindow().hide();
         FXMLLoader loader = new FXMLLoader();
         loader.setLocation(getClass().getResource(path));

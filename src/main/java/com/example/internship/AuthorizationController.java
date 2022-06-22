@@ -16,7 +16,6 @@ import ru.internship.hibernate.entity.Users;
 
 import java.io.IOException;
 import java.net.URL;
-import java.sql.SQLException;
 import java.util.ResourceBundle;
 
 public class AuthorizationController {
@@ -53,11 +52,7 @@ public class AuthorizationController {
             String emailText = email.getText().trim();
             String passwordText = password.getText().trim();
             if (!emailText.equals("") && !passwordText.equals("")) {
-                try {
-                    loginUser(emailText, passwordText);
-                } catch (SQLException e) {
-                    e.printStackTrace();
-                }
+                loginUser(emailText, passwordText);
             }
             else if(!emailText.equals("")) {
                 text.setText("Пароль пустой");
@@ -73,13 +68,14 @@ public class AuthorizationController {
         registration.setOnAction(actionEvent -> open("/com/example/internship/registration.fxml", registration, "Регистрация"));
     }
 
-    private void loginUser(String emailText, String passwordText) throws SQLException {
+    private void loginUser(String emailText, String passwordText) {
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.getTransaction().begin();
         Users users = new Users();
         users.setEmail(emailText);
         users.setPassword(passwordText);
-        Query query=session.createQuery("from Users where email=:email and password=:password");
+
+        Query query = session.createQuery("from Users where email=:email and password=:password");
         query.setParameter("email", emailText);
         query.setParameter("password", passwordText);
         Users user =(Users)query.uniqueResult();
@@ -87,16 +83,21 @@ public class AuthorizationController {
             id_employee = user.getIdEmployee(); // записывает айди авторизованного пользователя
             if(user.getRole().contains("Нач. отдела кадров")){
                 id_chief = Integer.valueOf(user.getRole().substring(user.getRole().indexOf('_') + 1)); // id начальника отдела кадров
-                System.out.println(id_chief);
+                session.close();
+                HibernateUtil.close();
                 open("/com/example/internship/accounting.fxml", login, "Отдел кадров");
             }
-            else if(user.getRole().equals("Администратор")) open("/com/example/internship/admin.fxml", login, "Администратор");
+            else if(user.getRole().equals("Администратор")){
+                session.close();
+                HibernateUtil.close();
+                open("/com/example/internship/admin.fxml", login, "Администратор");}
             else{
-                System.out.println(id_employee);
+                session.close();
+                HibernateUtil.close();
                 open("/com/example/internship/userWindow.fxml", login, "Поиск ваканский");
             }
         }
-        else text.setText("Не найден");
+        else {text.setText("Не найден");session.close();HibernateUtil.close();}
     }
 
      private void open(String path, Button button, String title) {
