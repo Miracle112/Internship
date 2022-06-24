@@ -110,7 +110,6 @@ public class RegistrationController {
 
             if (user != null) {
                 session.close();
-                HibernateUtil.close();
                 label.setText("Пользователь существует");
             }
             else {
@@ -144,7 +143,6 @@ public class RegistrationController {
                 session.getTransaction().commit();
 
                 session.close();
-                HibernateUtil.close();
                 open("/com/example/internship/authorization.fxml", reg_button);
             }
         } else {

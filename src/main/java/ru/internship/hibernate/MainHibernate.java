@@ -17,7 +17,6 @@ public class MainHibernate {
         users.setPassword("andrey");
         users.setRole("admin");
         session.save(users);
-        session.getTransaction().commit();
         final TypedQuery<Subjects> query = session.createQuery("from Subjects where idSubject = 0", Subjects.class);
         for (Subjects o : query.getResultList()) {
             o.getProfessionsByIdSubject().stream().forEach(professions -> {
@@ -25,6 +24,8 @@ public class MainHibernate {
                         + " " + o.getNameSubject());
             });
         }
+
+        session.getTransaction().commit();
 
         session.close();
         HibernateUtil.close();

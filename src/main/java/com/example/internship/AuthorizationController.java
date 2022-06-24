@@ -84,16 +84,13 @@ public class AuthorizationController {
             if(user.getRole().contains("Нач. отдела кадров")){
                 id_chief = Integer.valueOf(user.getRole().substring(user.getRole().indexOf('_') + 1)); // id начальника отдела кадров
                 session.close();
-                HibernateUtil.close();
                 open("/com/example/internship/accounting.fxml", login, "Отдел кадров");
             }
             else if(user.getRole().equals("Администратор")){
                 session.close();
-                HibernateUtil.close();
                 open("/com/example/internship/admin.fxml", login, "Администратор");}
             else{
                 session.close();
-                HibernateUtil.close();
                 open("/com/example/internship/userWindow.fxml", login, "Поиск ваканский");
             }
         }
