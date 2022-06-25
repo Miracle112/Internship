@@ -2,6 +2,13 @@ package com.example.internship;
 
 import javafx.fxml.FXML;
 import javafx.scene.control.*;
+import org.hibernate.Session;
+import ru.internship.hibernate.HibernateUtil;
+import ru.internship.hibernate.entity.Organization;
+import ru.internship.hibernate.entity.Person;
+import ru.internship.hibernate.entity.Users;
+
+import javax.persistence.TypedQuery;
 import java.lang.reflect.InvocationTargetException;
 import java.sql.*;
 import java.time.LocalDate;
@@ -119,17 +126,12 @@ public class AdminController {
             } else { // если всё хорошо, происходит запись данных в БД:
 
                 // данные организации
-                try {
-                    addOrganization(fullNameField.getText(), shortName.getText(), INNField.getText(),
+                addOrganization(fullNameField.getText(), shortName.getText(), INNField.getText(),
                             legalAddressField.getText(), actualAddressField.getText(), directorNameField.getText(),
                             phoneNumField.getText(), emailField.getText());
-                } catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                         InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
 
                 // данные начальника отдела кадров
-                byte gender;
+                int gender;
                 if(maleConfirm.isSelected()){
                     gender = 1;
                     femaleConfirm.setSelected(false);
@@ -141,13 +143,8 @@ public class AdminController {
                 String dateFormatted = localDate.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 Date birthDate = Date.valueOf(dateFormatted);
 
-                try {
-                    addHeadOfHumanResourcesDepartment(FIOField.getText(), gender, birthDate, bithplaceField.getText(),
+                addHeadOfHumanResourcesDepartment(FIOField.getText(), gender, birthDate, bithplaceField.getText(),
                             residenceAddressField.getText(), registrationAddressField.getText());
-                } catch (SQLException | ClassNotFoundException | NoSuchMethodException | InvocationTargetException |
-                         InstantiationException | IllegalAccessException e) {
-                    throw new RuntimeException(e);
-                }
 
             }
 
@@ -166,63 +163,46 @@ public class AdminController {
         emailField.setEditable(status);
     }
 
-    public void addHeadOfHumanResourcesDepartment(String FIO, byte gender, Date birth_Date, String bithplace,
+    public void addHeadOfHumanResourcesDepartment(String FIO, int gender, Date birth_Date, String birthPlace,
                                                   String residenceAddress,
-                                                  String registrationAddress) throws SQLException,
-            ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException,
-            IllegalAccessException {
+                                                  String registrationAddress) {
 
         int idEmployee = 0;
-        Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "Robbit50!")) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM person");
-            while (resultSet.next()) {
+
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        session.getTransaction().begin();
+        final TypedQuery<Person> query = session.createQuery("from Person", Person.class);
+        for (Person z: query.getResultList()){
+            if(query.getResultList() != null){
+                System.out.println(z.getIdEmployee());
                 idEmployee++;
             }
         }
         idEmployee++;
 
+        System.out.println(idEmployee + "ы");
+
         // вставка в таблицу "person"
 
-        String request = "INSERT INTO person (id_employee, full_name, male, birth_date, birth_plase, " +
-                "residence_address, registration_address) VALUES (?, ?, ?, ?, ?, ?, ?)";
-
-        DBHandler.getDbConnection().prepareStatement(request);
-        PreparedStatement preparedStatement;
-
-        try {
-            preparedStatement = DBHandler.getDbConnection().prepareStatement(request);
-            preparedStatement.setInt(1, idEmployee);
-            preparedStatement.setString(2, FIO);
-            preparedStatement.setByte(3, gender);
-            preparedStatement.setDate(4, birth_Date);
-            preparedStatement.setString(5, bithplace);
-            preparedStatement.setString(6, residenceAddress);
-            preparedStatement.setString(7, registrationAddress);
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ClassNotFoundException throwable) {
-            throwable.printStackTrace();
-        }
+        Person person = new Person();
+        person.setFullName(FIO);
+        person.setMale(gender);
+        person.setBirthDate(birth_Date);
+        person.setBirthPlace(birthPlace);
+        person.setResidenceAddress(residenceAddress);
+        person.setRegistrationAddress(registrationAddress);
+        //session.getTransaction().commit();
+        session.save(person);
 
         // вставка в таблицу "users"
-        request = "INSERT users (id_employee, email, password, `role`) VALUES(?, ?, ?, ?)";
 
-        DBHandler.getDbConnection().prepareStatement(request);
-        PreparedStatement preparedStatementTwo;
-
-        try {
-            preparedStatementTwo = getDbConnection().prepareStatement(request);
-            preparedStatementTwo.setInt(1, idEmployee);
-            preparedStatementTwo.setString(2, emailField.getText());
-            preparedStatementTwo.setString(3, passwordField.getText());
-            preparedStatementTwo.setString(4, "Нач. отдела кадров" + "_" + idOrganization);
-            preparedStatementTwo.executeUpdate();
-        } catch (SQLException | ClassNotFoundException throwable) {
-            throwable.printStackTrace();
-        }
-
+        Users users = new Users();
+        users.setIdEmployee(person.getIdEmployee());
+        users.setEmail(emailField.getText());
+        users.setPassword(passwordField.getText());
+        users.setRole("Нач. отдела кадров" + "_" + idOrganization);
+        session.save(users);
+        session.getTransaction().commit();
 
         fullNameField.clear();
         shortName.clear();
@@ -245,41 +225,27 @@ public class AdminController {
         isConfirm = false;
     }
 
+    // метод добавления данных в таблицу "organization"
     public void addOrganization(String fullName, String shortName, String inn, String legalAddress,
-                                String actualAddress, String directorName, String phoneNum, String email)
-            throws SQLException, ClassNotFoundException, NoSuchMethodException, InvocationTargetException, InstantiationException, IllegalAccessException {
+                                String actualAddress, String directorName, String phoneNum, String email) {
 
-        Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-        try (Connection connection = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                "root", "Robbit50!")) {
-            Statement statement = connection.createStatement();
-            ResultSet resultSet = statement.executeQuery("SELECT * FROM organization");
-            while (resultSet.next()) {
-                idOrganization++;
-            }
-        }
-        idOrganization++;
+        idOrganization = 0;
 
-        String secRequest = "INSERT INTO organization (id_organization, full_name, short_name, INN, legal_address, " +
-                "actual_address, director, number, email) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?)";
+        Session session = HibernateUtil.getSessionFactory().openSession();
+        session.getTransaction().begin();
 
-        DBHandler.getDbConnection().prepareStatement(secRequest);
-        PreparedStatement preparedStatement;
-
-        try {
-            preparedStatement = getDbConnection().prepareStatement(secRequest);
-            preparedStatement.setInt(1, idOrganization);
-            preparedStatement.setString(2, fullName);
-            preparedStatement.setString(3, shortName);
-            preparedStatement.setString(4, inn);
-            preparedStatement.setString(5, legalAddress);
-            preparedStatement.setString(6, actualAddress);
-            preparedStatement.setString(7, directorName);
-            preparedStatement.setString(8, phoneNum);
-            preparedStatement.setString(9, email);
-            preparedStatement.executeUpdate();
-        } catch (SQLException | ClassNotFoundException throwables) {
-            throwables.printStackTrace();
-        }
+        Organization organization = new Organization();
+        organization.setFullName(fullName);
+        organization.setShortName(shortName);
+        organization.setInn(inn);
+        organization.setLegalAddress(legalAddress);
+        organization.setActualAddress(actualAddress);
+        organization.setDirector(directorName);
+        organization.setNumber(phoneNum);
+        organization.setEmail(email);
+        session.save(organization);
+        session.getTransaction().commit();
+        idOrganization = organization.getIdOrganization();
+        System.out.println(idOrganization);
     }
 }

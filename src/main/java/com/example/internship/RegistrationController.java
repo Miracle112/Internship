@@ -118,12 +118,12 @@ public class RegistrationController {
                 person.setFullName(name.getText());
                 person.setMale(gender);
                 person.setBirthDate(date);
-                person.setBirthPlase(birth_place.getText());
+                person.setBirthPlace(birth_place.getText());
                 person.setResidenceAddress(residence_address.getText());
                 person.setRegistrationAddress(registration_address.getText());
                 session.save(person);
 
-                Query queryTwo = session.createQuery("from Person where fullName=:fullname and male=:male and birthPlase=:birthPlace and" +
+                Query queryTwo = session.createQuery("from Person where fullName=:fullname and male=:male and birthPlace=:birthPlace and" +
                         " birthDate=:birthDate and residenceAddress=:residenceAddress and registrationAddress =:registrationAddress");
                 queryTwo.setParameter("fullname", name.getText());
                 queryTwo.setParameter("male", gender);

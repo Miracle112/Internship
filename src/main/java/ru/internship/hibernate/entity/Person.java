@@ -25,13 +25,14 @@ public class Person {
     @Column(name = "full_name")
     private String fullName;
 
-    private Integer male;
+    @Column(name = "male")
+    private int male;
 
     @Column(name = "birth_date")
     private Date birthDate;
 
     @Column(name = "birth_plase")
-    private String birthPlase;
+    private String birthPlace;
 
     @Column(name = "residence_address")
     private String residenceAddress;
