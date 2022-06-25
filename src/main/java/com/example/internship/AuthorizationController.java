@@ -94,7 +94,7 @@ public class AuthorizationController {
                 open("/com/example/internship/userWindow.fxml", login, "Поиск ваканский");
             }
         }
-        else {text.setText("Не найден");session.close();HibernateUtil.close();}
+        else {text.setText("Не найден");session.close();}
     }
 
      private void open(String path, Button button, String title) {
