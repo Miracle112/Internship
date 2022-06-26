@@ -76,9 +76,6 @@ public class AuthorizationController {
     private void loginUser(String emailText, String passwordText) throws SQLException {
         Session session = HibernateUtil.getSessionFactory().openSession();
         session.getTransaction().begin();
-        Users users = new Users();
-        users.setEmail(emailText);
-        users.setPassword(passwordText);
         Query query=session.createQuery("from Users where email=:email and password=:password");
         query.setParameter("email", emailText);
         query.setParameter("password", passwordText);

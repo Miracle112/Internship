@@ -7,9 +7,9 @@
     <property name="connection.url">jdbc:mysql://localhost:3306/practice?UseUnicode=true&amp;characterEncoding=utf8</property>
     <property name="connection.driver_class">com.mysql.cj.jdbc.Driver</property>
     <property name="connection.username">root</property>
-    <property name="connection.password">Robbit50!</property>
+    <property name="connection.password">123558800Kent</property>
     <property name="hibernate.dialect">org.hibernate.dialect.MySQL8Dialect</property>
-    <property name="hibernate.show_sql">true</property>
+<!--    <property name="hibernate.show_sql">true</property>-->
     <mapping class="ru.internship.hibernate.entity.Contacts"/>
     <mapping class="ru.internship.hibernate.entity.ContactsDecoding"/>
     <mapping class="ru.internship.hibernate.entity.Documents"/>

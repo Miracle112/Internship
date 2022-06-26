@@ -16,6 +16,13 @@ import javafx.scene.input.KeyCode;
 import javafx.stage.Modality;
 import javafx.stage.Stage;
 import javafx.util.Callback;
+import org.hibernate.HibernateException;
+import org.hibernate.Session;
+import org.hibernate.SessionFactory;
+import org.hibernate.cfg.Configuration;
+import org.hibernate.query.Query;
+import ru.internship.hibernate.HibernateUtil;
+import ru.internship.hibernate.entity.*;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -24,6 +31,8 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
+import java.util.List;
 
 public class AccountingController {
     Date date;
@@ -61,6 +70,87 @@ public class AccountingController {
     @FXML
     private TextField search3;
 
+    private static final SessionFactory ourSessionFactory;
+
+    static {
+        try {
+            Configuration configuration = new Configuration();
+            configuration.configure();
+
+            ourSessionFactory = configuration.buildSessionFactory();
+        } catch (Throwable ex) {
+            throw new ExceptionInInitializerError(ex);
+        }
+    }
+
+    public static Session getSession() throws HibernateException {
+        return ourSessionFactory.openSession();
+    }
+
+    Session session = getSession();
+
+    private void fillDocs(Query request) {
+        List<Documents> documents = request.getResultList();
+        ArrayList<String[]> listmas = new ArrayList<>();
+        documents.stream().forEach(d -> {
+            String[] element = {d.getPersonByIdEmployee().getFullName(), d.getTypeDocByIdDocumentType().getDocumentName(), d.getNumber(), d.getIssuePlace(), d.getDocDate().toString()};
+            listmas.add(element);
+        });
+        List<String> list = List.of("ФИО", "Тип документа", "Номер", "Место выдачи", "Дата выдачи");
+        try {
+            fillHql(list, docTable, listmas);
+        } catch (Exception throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void fillPerson(Query request) {
+        List<Person> person = request.getResultList();
+        ArrayList<String[]> listmas = new ArrayList<>();
+        person.stream().forEach(p -> {
+            String[] element = {p.getIdEmployee().toString(), p.getFullName(), p.getMale().toString(), p.getBirthDate().toString(),
+            p.getBirthPlase(), p.getResidenceAddress(), p.getRegistrationAddress()};
+            listmas.add(element);
+        });
+        List<String> list = List.of("ID работника", "ФИО", "Мужчина", "Дата рождения", "Место рождения", "Адрес проживания", "Адрес регистрации");
+        try {
+            fillHql(list, personTable, listmas);
+        } catch (Exception throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void fillLab(Query request) {
+        List<LaborBook> laborBook = request.getResultList();
+        ArrayList<String[]> listmas = new ArrayList<>();
+        laborBook.stream().forEach(l -> {
+            String[] element = {l.getPersonByIdEmployee().getFullName(), l.getOrganizationByIdOrganization().getShortName(), l.getProfessionsByIdProfession().getNameProfession(), l.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(), l.getNotEduProfession(), l.getNotEduOrganization(), l.getWorkMark(), l.getDateFrom().toString(), l.getDateTo().toString()};
+            listmas.add(element);
+        });
+        List<String> list = List.of("ФИО", "Организация", "Профессия", "Предмет", "Не образовательная профессия", "Не образовательная организация", "Заметки", "Дата нанятия", "Дата увольнения");
+        try {
+            fillHql(list, labTable, listmas);
+        } catch (Exception throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
+    private void fillPersonnel(Query request) {
+        List<Personnel> personnel = request.getResultList();
+        ArrayList<String[]> listmas = new ArrayList<>();
+        personnel.stream().forEach(p -> {
+            String[] element = {p.getIdPersonal().toString(), p.getIfExist(), p.getProfessionsByIdProfession().getNameProfession(), p.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(),
+            p.getJobStatus(), p.getDateFrom().toString()};
+            listmas.add(element);
+        });
+        List<String> list = List.of("Номер заявки", "ФИО", "Профессия", "Предмет", "Статус", "Дата создания");
+        try {
+            fillHql(list, requestTable, listmas);
+        } catch (Exception throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
     @FXML
     void initialize() {
         dateNow();
@@ -75,20 +165,18 @@ public class AccountingController {
             // удаление из таблицы
             ObservableList id_del = requestTable.getSelectionModel().getSelectedItem();
             Object id_del_index = id_del.get(0);
-            String request = "DELETE FROM personnel WHERE(id_personal = " + id_del_index + ")";
-            try {
-                PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
-                prSt.executeUpdate();
-            } catch (SQLException | ClassNotFoundException e) {
-                e.printStackTrace();
-            }
+            int intValue = Integer.parseInt(id_del_index.toString());
+            Session session = HibernateUtil.getSessionFactory().openSession();
+            session.getTransaction().begin();
+            Personnel personnel = new Personnel();
+            personnel.setIdPersonal(intValue);
+            session.delete(personnel);
+            session.getTransaction().commit();
             requestTable.getItems().clear();
-            String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as 'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1;";
-            try {
-                fill(requestPersonnel, requestTable);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            Query requestPersonnel = session.createQuery("from Personnel where jobStatus =: jobStatus and idOrganization =: idOrganization");
+            requestPersonnel.setParameter("jobStatus", "1");
+            requestPersonnel.setParameter("idOrganization", AuthorizationController.id_chief);
+            fillPersonnel(requestPersonnel);
         });
 
         acceptBtn.setOnAction(event -> {
@@ -103,12 +191,10 @@ public class AccountingController {
                 e.printStackTrace();
             }
             requestTable.getItems().clear();
-            String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as 'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1;";
-            try {
-                fill(requestPersonnel, requestTable);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            Query requestPersonnel = session.createQuery("from Personnel where jobStatus =: jobStatus and idOrganization =: idOrganization");
+            requestPersonnel.setParameter("jobStatus", "1");
+            requestPersonnel.setParameter("idOrganization", AuthorizationController.id_chief);
+            fillPersonnel(requestPersonnel);
         });
 
         rejectBtn.setOnAction(event -> {
@@ -123,45 +209,23 @@ public class AccountingController {
                 e.printStackTrace();
             }
             requestTable.getItems().clear();
-            String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as 'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1;";
-            try {
-                fill(requestPersonnel, requestTable);
-            } catch (SQLException throwables) {
-                throwables.printStackTrace();
-            }
+            Query requestPersonnel = session.createQuery("from Personnel where jobStatus =: jobStatus and idOrganization =: idOrganization");
+            requestPersonnel.setParameter("jobStatus", "1");
+            requestPersonnel.setParameter("idOrganization", AuthorizationController.id_chief);
+            fillPersonnel(requestPersonnel);
         });
 
         search1.getParent().setOnKeyPressed(keyEvent -> {
             if (keyEvent.getCode() == KeyCode.ENTER) {
                 String text = search1.getText();
                 if (text == "") {
-                    String requestPerson = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person;";
-                    personTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestPerson);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(requestPerson, personTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    fillPerson(session.createQuery("from Person"));
                 } else {
-                    String request = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person WHERE full_name = '" + text + "'";
-                    personTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(request, personTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    Session session = HibernateUtil.getSessionFactory().openSession();
+                    session.getTransaction().begin();
+                    Query query=session.createQuery("from Person where fullName like :fullName");
+                    query.setParameter("fullName", "%" + text + "%"); // add search by subString
+                    fillPerson(query);
                 }
             }
         });
@@ -170,33 +234,13 @@ public class AccountingController {
             if (keyEvent.getCode() == KeyCode.ENTER) {
                 String text = search2.getText();
                 if (text == "") {
-                    String requestDoc = "SELECT (select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents;";
-                    docTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestDoc);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(requestDoc, docTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    fillDocs(session.createQuery("from Documents"));
                 } else {
-                    String request = "SELECT(select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents where (select full_name from person where documents.id_employee = person.id_employee) = '" + text + "';";
-                    docTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(request, docTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    Session session = HibernateUtil.getSessionFactory().openSession();
+                    session.getTransaction().begin();
+                    Query query=session.createQuery("from Documents where personByIdEmployee.fullName like :fullName");
+                    query.setParameter("fullName", "%" + text + "%"); // add search by subString
+                    fillDocs(query);
                 }
             }
         });
@@ -205,75 +249,35 @@ public class AccountingController {
             if (keyEvent.getCode() == KeyCode.ENTER) {
                 String text = search3.getText();
                 if (text == "") {
-                    String requestLab = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book;";
-                    labTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(requestLab);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(requestLab, labTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    fillLab(session.createQuery("from LaborBook"));
                 } else {
-                    String request = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book WHERE (select full_name from person where labor_book.id_employee = person.id_employee) = '" + text + "';";
-                    labTable.getItems().clear();
-                    try {
-                        PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(request);
-                        prSt.executeQuery();
-                    } catch (SQLException | ClassNotFoundException e) {
-                        e.printStackTrace();
-                    }
-                    try {
-                        fill(request, labTable);
-                    } catch (SQLException throwables) {
-                        throwables.printStackTrace();
-                    }
+                    Session session = HibernateUtil.getSessionFactory().openSession();
+                    session.getTransaction().begin();
+                    Query query=session.createQuery("from LaborBook where personByIdEmployee.fullName like :fullName");
+                    query.setParameter("fullName", "%" + text + "%"); // add search by subString
+                    fillLab(query);
                 }
             }
         });
 
-        String requestPerson = "SELECT id_employee as 'ID работника', full_name as 'ФИО', male as 'Мужчина', birth_date as 'День рождения', birth_plase as 'Место рождения', residence_address as 'Адрес проживания', registration_address as 'Адрес регистрации' FROM practice.person;";
-        try {
-            fill(requestPerson, personTable);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        Query requestPersonnel = session.createQuery("from Personnel where jobStatus =: jobStatus and idOrganization =: idOrganization");
+        requestPersonnel.setParameter("jobStatus", "1");
+        requestPersonnel.setParameter("idOrganization", AuthorizationController.id_chief);
+        fillPersonnel(requestPersonnel);
 
-        String requestPersonnel = "SELECT id_personal as 'Номер заявки', (select full_name from person where personnel.id_employee = person.id_employee) as 'ФИО', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', job_status as 'Статус', date_from as " +
-                "'Дата создания', date_to as 'Дата закрытия' FROM practice.personnel where job_status = 1 AND id_organization = "+ AuthorizationController.id_chief +";";
-        try {
-            fill(requestPersonnel, requestTable);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        fillPerson(session.createQuery("from Person"));
 
-        String requestDoc = "SELECT (select full_name from person where documents.id_employee = person.id_employee) as 'ФИО', (select document_name from type_doc where type_doc.id_document_type = documents.id_document_type) as 'Тип документа', number as 'Номер', issue_place as 'Место выдачи', doc_date as 'Дата выдачи' FROM practice.documents;";
-        try {
-            fill(requestDoc, docTable);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        fillDocs(session.createQuery("from Documents"));
 
-        String requestLab = "SELECT (select full_name from person where labor_book.id_employee = person.id_employee) as 'ФИО', (select organization.short_name from organization where labor_book.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE labor_book.id_profession = professions.id_profession) as 'Профессия', not_edu_organization as 'Не образовательная организация', not_edu_profession 'Не образовательная профессия', work_mark as 'Заметки', date_from as 'Дата нанятия', date_to as 'Дата увольнения' FROM practice.labor_book;";
-        try {
-            fill(requestLab, labTable);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+        fillLab(session.createQuery("from LaborBook"));
     }
 
-    public static void fill(String querry, TableView<ObservableList> personalDataTable1) throws SQLException {
-        personalDataTable1.getColumns().clear();
+    public static void fillHql(List<String> labels, TableView<ObservableList> table, ArrayList<String[]> args) {
+        table.getColumns().clear();
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
-        DBHandler dbHandler = new DBHandler();
-        ResultSet resultSet = dbHandler.querry(querry);
-        for (int i = 0; i < resultSet.getMetaData().getColumnCount(); i++) {
+        for (int i = 0; i < labels.size(); i++) {
             final int j = i;
-            TableColumn col = new TableColumn(resultSet.getMetaData().getColumnLabel(i + 1));
+            TableColumn col = new TableColumn(labels.get(i));
             col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
                     if (param.getValue().get(j) == null) {
@@ -283,17 +287,18 @@ public class AccountingController {
                     }
                 }
             });
-            personalDataTable1.getColumns().addAll(col);
+            table.getColumns().addAll(col);
         }
-        while (resultSet.next()) {
+        for (int j = 0; j < args.size(); j++) {
             ObservableList<String> row = FXCollections.observableArrayList();
-            for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-                row.add(resultSet.getString(i));
+            for (int i = 0; i < args.get(j).length; i++) {
+                row.add(args.get(j)[i]);
             }
             data.add(row);
         }
-        personalDataTable1.setItems(data);
+        table.setItems(data);
     }
+
 
     private void open(String path, Button button) {
         FXMLLoader loader = new FXMLLoader();
@@ -308,7 +313,7 @@ public class AccountingController {
         stage.setScene((new Scene(root)));
         stage.setTitle("Добавление");
         stage.initModality(Modality.APPLICATION_MODAL);
-        stage.showAndWait();
+        stage.show();
     }
 
     public Date dateNow() {

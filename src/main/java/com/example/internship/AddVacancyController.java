@@ -33,8 +33,6 @@ public class AddVacancyController {
 
     @FXML
     private DatePicker createDateBox;
-
-    ObservableList<String> data = FXCollections.observableArrayList();
     String professions;
     String subjects;
     DBHandler dbHandler = new DBHandler();
@@ -57,7 +55,7 @@ public class AddVacancyController {
             subjects = boxSubjects.getValue();
         });
         addBtn.setOnAction(event -> {
-            String requestGetIdSub = "SELECT id_subject FROM practice.subjects where name_subject = '" + subjects + "';";
+            String requestGetIdSub = "SELECT id_subject FROM practice.subjects where name_subject = '" + subjects + " and name_profession = " + professions + "';";
             try {
                 ResultSet rs = dbHandler.querry(requestGetIdSub);
                 if (rs.next()) {
@@ -66,11 +64,8 @@ public class AddVacancyController {
             } catch (SQLException e) {
                 e.printStackTrace();
             }
-            System.out.println(id_sub);
             String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES " +
-                    "("+ AuthorizationController.id_chief
-                    +",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +"),0,'" + dateTransformer() + "');";
-            System.out.println(requestAdd);
+                    "("+ AuthorizationController.id_chief + ",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +" and name_profession = '" + professions + "'),0,'" + dateTransformer() + "');";
             PreparedStatement prSt = null;
             try {
                 prSt = dbHandler.getDbConnection().prepareStatement(requestAdd);
@@ -115,7 +110,7 @@ public class AddVacancyController {
         Parent root = loader.getRoot();
         Stage stage = new Stage();
         stage.setScene((new Scene(root)));
-        stage.setTitle("Добавление");
+        stage.setTitle("Отдел кадров");
         stage.initModality(Modality.APPLICATION_MODAL);
         stage.showAndWait();
     }

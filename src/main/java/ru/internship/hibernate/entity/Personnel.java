@@ -50,4 +50,8 @@ public class Personnel {
     @ManyToOne
     @JoinColumn(name = "id_employee", referencedColumnName = "id_employee", updatable = false, insertable = false)
     private Person personByIdEmployee;
+
+    public String getIfExist(){
+        return(this.personByIdEmployee == null?"":this.personByIdEmployee.getFullName());
+    }
 }
