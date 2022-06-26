@@ -109,7 +109,7 @@ public class AccountingController {
         ArrayList<String[]> listmas = new ArrayList<>();
         person.stream().forEach(p -> {
             String[] element = {p.getIdEmployee().toString(), p.getFullName(), p.getMale().toString(), p.getBirthDate().toString(),
-            p.getBirthPlase(), p.getResidenceAddress(), p.getRegistrationAddress()};
+            p.getBirthPlace(), p.getResidenceAddress(), p.getRegistrationAddress()};
             listmas.add(element);
         });
         List<String> list = List.of("ID работника", "ФИО", "Мужчина", "Дата рождения", "Место рождения", "Адрес проживания", "Адрес регистрации");

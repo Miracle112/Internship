@@ -26,7 +26,7 @@ public class Person {
     private String fullName;
 
     @Column(name = "male")
-    private int male;
+    private Integer male;
 
     @Column(name = "birth_date")
     private Date birthDate;
