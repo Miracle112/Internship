@@ -4,106 +4,71 @@ import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
+import javafx.event.ActionEvent;
 import javafx.fxml.FXML;
-import javafx.scene.control.*;
 import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
+import javafx.scene.control.*;
 import javafx.scene.text.Text;
 import javafx.stage.Stage;
-import javafx.event.ActionEvent;
 import javafx.util.Callback;
+import org.hibernate.Session;
+import ru.internship.hibernate.HibernateUtil;
+import ru.internship.hibernate.entity.Contacts;
+import ru.internship.hibernate.entity.Documents;
 
 import java.io.IOException;
-import java.sql.*;
-import java.text.ParseException;
-import java.text.SimpleDateFormat;
-import java.util.HashMap;
-import java.util.Map;
-
 import java.sql.Date;
 import java.sql.PreparedStatement;
 import java.sql.ResultSet;
 import java.sql.SQLException;
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
+import java.util.HashMap;
+import java.util.Map;
 
 public class UserWindowController {
 
-    @FXML
-    private ComboBox<String> documents_combo;
-    @FXML
-    private Button documents_btn;
-    @FXML
-    private Label documents_label;
-    @FXML
-    private Button documents_save_btn;
-    @FXML
-    private TextField document_number_field;
-    @FXML
-    private Label document_number_label;
-    @FXML
-    private TextField issue_place_field;
-    @FXML
-    private Label issue_place_label;
-    @FXML
-    private TextField doc_date_field;
-    @FXML
-    private Label doc_date_label;
-
-    @FXML
-    private ComboBox<String> social_network_combo;
-    @FXML
-    private Button social_network_btn;
-    @FXML
-    private Label social_network_label;
-    @FXML
-    private Label link_label;
-    @FXML
-    private TextField link_field;
-    @FXML
-    private Button social_network_save_btn;
-
-    @FXML
-    private Button requestBtn;
-    @FXML
-    private TextField profession;
-    @FXML
-    private TextField organization;
-    @FXML
-    private TextField workMark;
-    @FXML
-    private Button saveBtn;
-    @FXML
-    private Button employmentBtn;
-    @FXML
-    private DatePicker dateFrom;
-    @FXML
-    private DatePicker dateTo;
-    @FXML
-    private RadioButton noteduRBtn;
-    @FXML
-    private RadioButton eduRBtn;
-    @FXML
-    private ComboBox<String> professionBox;
-    @FXML
-    private ComboBox<String> organizationBox;
-    @FXML
-    private Button chooseBtn;
-    @FXML
-    private Text dateFromTxt;
-    @FXML
-    private Text dateToTxt;
-    @FXML
-    private Text workMarkTxt;
-    @FXML
-    private TableView<ObservableList> requestTable;
+    @FXML private ComboBox<String> documents_combo;
+    @FXML private Button documents_btn;
+    @FXML private Label documents_label;
+    @FXML private Button documents_save_btn;
+    @FXML private TextField document_number_field;
+    @FXML private Label document_number_label;
+    @FXML private TextField issue_place_field;
+    @FXML private Label issue_place_label;
+    @FXML private Label doc_date_label;
+    @FXML private ComboBox<String> social_network_combo;
+    @FXML private Button social_network_btn;
+    @FXML private Label social_network_label;
+    @FXML private Label link_label;
+    @FXML private TextField link_field;
+    @FXML private Button social_network_save_btn;
+    @FXML private Button requestBtn;
+    @FXML private TextField profession;
+    @FXML private DatePicker datePicker;
+    @FXML private TextField organization;
+    @FXML private TextField workMark;
+    @FXML private Button saveBtn;
+    @FXML private Button employmentBtn;
+    @FXML private DatePicker dateFrom;
+    @FXML private DatePicker dateTo;
+    @FXML private RadioButton noteduRBtn;
+    @FXML private RadioButton eduRBtn;
+    @FXML private ComboBox<String> professionBox;
+    @FXML private ComboBox<String> organizationBox;
+    @FXML private Button chooseBtn;
+    @FXML private Text dateFromTxt;
+    @FXML private Text dateToTxt;
+    @FXML private Text workMarkTxt;
+    @FXML private TableView<ObservableList> requestTable;
     private ObservableList<String> profs = FXCollections.observableArrayList();
     private ObservableList<String> orgs = FXCollections.observableArrayList();
 
     DBHandler dbHandler = new DBHandler();
-
     @FXML
     private Button canclebtn;
-
     private final String[] listDocuments = new String[]{"Паспорт", "СНИЛС", "ИНН", "Полис", "Военный билет"};
     private String selectDocument = "";
 
@@ -111,11 +76,14 @@ public class UserWindowController {
             "Viber", "Telegram", "WhatsApp", "ICQ", "ОК"};
     private String selectSocialNetwork = "";
 
-    java.sql.Date sqlDate;
+    LocalDate dateLD;
+    Date date;
+    String formattedDate;
 
     @FXML
     private void initialize() {
         FXMLLoader loader = new FXMLLoader();
+        Session session = HibernateUtil.getSessionFactory().openSession();
 
         Map<String, Integer> DocumentsType = new HashMap<>();
         DocumentsType.put("Паспорт", 1);
@@ -148,31 +116,22 @@ public class UserWindowController {
         });
 
         documents_save_btn.setOnAction(event -> {
-            SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd");
-            try {
-                java.util.Date utilDate = format.parse(doc_date_field.getText());
-                sqlDate = new java.sql.Date(utilDate.getTime());
-            } catch (ParseException e) {
-                e.printStackTrace();
+            dateLD = datePicker.getValue();
+
+            if(dateLD != null){
+                formattedDate = dateLD.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
+                date = Date.valueOf(formattedDate);
             }
-            if (!(document_number_field.getText().isEmpty() || issue_place_field.getText().isEmpty()
-                    || doc_date_field.getText().isEmpty())) {
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "Robbit50!")) {
-                        PreparedStatement statement = conn.prepareStatement
-                                ("INSERT into documents(id_employee,id_document_type,number,issue_place,doc_date) VALUES(?,?,?,?,?)");
-                        statement.setInt(1, AuthorizationController.id_employee);
-                        statement.setInt(2, DocumentsType.get(documents_combo.getValue()));
-                        statement.setString(3, document_number_field.getText());
-                        statement.setString(4, issue_place_field.getText());
-                        statement.setDate(5, sqlDate);
-                        statement.executeUpdate();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+            if (!(document_number_field.getText().isEmpty() || issue_place_field.getText().isEmpty())) {
+                session.getTransaction().begin();
+                Documents documents = new Documents();
+                documents.setIdEmployee(AuthorizationController.id_employee);
+                documents.setIdDocumentType( DocumentsType.get(documents_combo.getValue()));
+                documents.setNumber(document_number_field.getText());
+                documents.setIssuePlace(issue_place_field.getText());
+                documents.setDocDate(date);
+                session.save(documents);
+                session.getTransaction().commit();
             }
         });
 
@@ -207,22 +166,19 @@ public class UserWindowController {
 
         social_network_save_btn.setOnAction(event -> {
             if (!(link_field.getText().isEmpty())) {
-                try {
-                    Class.forName("com.mysql.cj.jdbc.Driver").getDeclaredConstructor().newInstance();
-                    try (Connection conn = DriverManager.getConnection("jdbc:mysql://127.0.0.1:3306/practice",
-                            "root", "Robbit50!")) {
-                        PreparedStatement statement = conn.prepareStatement
-                                ("INSERT into contacts(id_employee,id_contact,contact) VALUES(?,?,?)");
-                        statement.setInt(1, AuthorizationController.id_employee);
-                        statement.setInt(2, SocialNetworkType.get(social_network_combo.getValue()));
-                        statement.setString(3, link_field.getText());
-                        statement.executeUpdate();
-                    }
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
+                session.getTransaction().begin();
+                Contacts contacts = new Contacts();
+                contacts.setIdEmployee(AuthorizationController.id_employee);
+                contacts.setIdContact(SocialNetworkType.get(social_network_combo.getValue()));
+                contacts.setContact(link_field.getText());
+                session.save(contacts);
+                session.getTransaction().commit();
             }
         });
+
+
+
+
 
         ToggleGroup group = new ToggleGroup();
         eduRBtn.setToggleGroup(group);
@@ -291,7 +247,7 @@ public class UserWindowController {
             document_number_label.setVisible(true);
             issue_place_field.setVisible(true);
             issue_place_label.setVisible(true);
-            doc_date_field.setVisible(true);
+            datePicker.setVisible(true);
             doc_date_label.setVisible(true);
             documents_combo.setVisible(true);
 
@@ -325,7 +281,7 @@ public class UserWindowController {
             document_number_label.setVisible(false);
             issue_place_field.setVisible(false);
             issue_place_label.setVisible(false);
-            doc_date_field.setVisible(false);
+            datePicker.setVisible(false);
             doc_date_label.setVisible(false);
             documents_combo.setVisible(false);
 
@@ -359,7 +315,7 @@ public class UserWindowController {
             document_number_label.setVisible(false);
             issue_place_field.setVisible(false);
             issue_place_label.setVisible(false);
-            doc_date_field.setVisible(false);
+            datePicker.setVisible(false);
             doc_date_label.setVisible(false);
             documents_combo.setVisible(false);
 
@@ -395,7 +351,7 @@ public class UserWindowController {
             document_number_label.setVisible(false);
             issue_place_field.setVisible(false);
             issue_place_label.setVisible(false);
-            doc_date_field.setVisible(false);
+            datePicker.setVisible(false);
             doc_date_label.setVisible(false);
             documents_combo.setVisible(false);
 

@@ -1,10 +1,21 @@
 <?xml version="1.0" encoding="UTF-8"?>
 
-<?import javafx.scene.control.*?>
-<?import javafx.scene.layout.*?>
-<?import javafx.scene.text.*?>
+<?import javafx.scene.control.Button?>
+<?import javafx.scene.control.ComboBox?>
+<?import javafx.scene.control.DatePicker?>
+<?import javafx.scene.control.Label?>
+<?import javafx.scene.control.RadioButton?>
+<?import javafx.scene.control.TableColumn?>
+<?import javafx.scene.control.TableView?>
+<?import javafx.scene.control.TextField?>
+<?import javafx.scene.layout.ColumnConstraints?>
+<?import javafx.scene.layout.GridPane?>
+<?import javafx.scene.layout.Pane?>
+<?import javafx.scene.layout.RowConstraints?>
+<?import javafx.scene.text.Font?>
+<?import javafx.scene.text.Text?>
 
-<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx" xmlns:fx="http://javafx.com/fxml" fx:controller="com.example.internship.UserWindowController">
+<GridPane alignment="center" hgap="10" vgap="10" xmlns="http://javafx.com/javafx/17" xmlns:fx="http://javafx.com/fxml/1" fx:controller="com.example.internship.UserWindowController">
     <columnConstraints>
         <ColumnConstraints />
     </columnConstraints>
@@ -14,49 +25,48 @@
     <children>
         <Pane prefHeight="400.0" prefWidth="600.0">
             <children>
-                <Label fx:id="documents_label" layoutX="115.0" layoutY="35.0" text="Документы" visible="false">
+                <Label fx:id="documents_label" layoutX="50.0" layoutY="35.0" text="Документы">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <Label fx:id="document_number_label" layoutX="45.0" layoutY="75.0" text="Серия номер" visible="false">
+                <Label fx:id="document_number_label" layoutX="50.0" layoutY="75.0" text="Серия номер">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <TextField fx:id="document_number_field" layoutX="216.0" layoutY="73.0" promptText="0011222222" visible="false" />
-                <Label fx:id="issue_place_label" layoutX="45.0" layoutY="108.0" text="Место выдачи" visible="false">
+                <TextField fx:id="document_number_field" layoutX="180.0" layoutY="73.0" promptText="0011222222" />
+                <Label fx:id="issue_place_label" layoutX="50.0" layoutY="115.0" text="Место выдачи">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <TextField fx:id="issue_place_field" layoutX="216.0" layoutY="105.0" promptText="ул. Улица д. Дом" visible="false" />
-                <Label fx:id="doc_date_label" layoutX="45.0" layoutY="139.0" text="Дата выдачи" visible="false">
+                <TextField fx:id="issue_place_field" layoutX="180.0" layoutY="113.0" promptText="ул. Улица д. Дом" />
+                <Label fx:id="doc_date_label" layoutX="50.0" layoutY="155.0" text="Дата выдачи">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <TextField fx:id="doc_date_field" layoutX="216.0" layoutY="136.0" promptText="гггг-мм-дд" visible="false" />
-                <Button fx:id="documents_btn" layoutX="483.0" layoutY="53.0" mnemonicParsing="false" text="Документы" />
-                <Button fx:id="social_network_btn" layoutX="478.0" layoutY="95.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="88.0" text="Контактная инфомация" textAlignment="CENTER" wrapText="true" />
-                <Button fx:id="documents_save_btn" layoutX="178.0" layoutY="188.0" mnemonicParsing="false" text="Сохранить" visible="false" />
-                <Button fx:id="canclebtn" layoutX="495.0" layoutY="344.0" mnemonicParsing="false" text="Выход" />
-                <ComboBox fx:id="documents_combo" layoutX="215.0" layoutY="33.0" prefWidth="150.0" visible="false" />
-                <Label fx:id="social_network_label" layoutX="72.0" layoutY="35.0" text="Контактная информация">
+                <Button fx:id="documents_btn" layoutX="465.0" layoutY="40.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="105.0" text="Документы" />
+                <Button fx:id="social_network_btn" layoutX="465.0" layoutY="110.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="105.0" text="Контактная инфомация" textAlignment="CENTER" wrapText="true" />
+                <Button fx:id="documents_save_btn" layoutX="50.0" layoutY="195.0" mnemonicParsing="false" text="Сохранить" />
+                <Button fx:id="canclebtn" layoutX="475.0" layoutY="360.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="85.0" text="Выход" />
+                <ComboBox fx:id="documents_combo" layoutX="180.0" layoutY="33.0" prefWidth="150.0" />
+                <Label fx:id="social_network_label" layoutX="50.0" layoutY="35.0" text="Контакты" visible="false">
                     <font>
                         <Font size="14.0" />
                     </font>
                 </Label>
-                <ComboBox fx:id="social_network_combo" layoutX="243.0" layoutY="33.0" prefWidth="150.0" />
-                <Label fx:id="link_label" layoutX="129.0" layoutY="69.0" text="Номер">
+                <ComboBox fx:id="social_network_combo" layoutX="180.0" layoutY="33.0" prefWidth="150.0" visible="false" />
+                <Label fx:id="link_label" layoutX="50.0" layoutY="75.0" text="Номер" visible="false">
                     <font>
                         <Font size="14.0" />
                     </font></Label>
-                <TextField fx:id="link_field" layoutX="244.0" layoutY="66.0" />
-                <Button fx:id="social_network_save_btn" layoutX="178.0" layoutY="188.0" mnemonicParsing="false" text="Сохранить" />
+                <TextField fx:id="link_field" layoutX="180.0" layoutY="73.0" visible="false" />
+                <Button fx:id="social_network_save_btn" layoutX="50.0" layoutY="115.0" mnemonicParsing="false" text="Сохранить" visible="false" />
 
-                <Button fx:id="employmentBtn" layoutX="466.0" layoutY="200.0" mnemonicParsing="false" prefHeight="46.0" prefWidth="108.0" text="История трудоустройства" textAlignment="CENTER" wrapText="true" />
-                <Button fx:id="requestBtn" layoutX="483.0" layoutY="157.0" mnemonicParsing="false" prefHeight="25.0" prefWidth="78.0" text="Заявка" />
+                <Button fx:id="employmentBtn" layoutX="465.0" layoutY="250.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="105.0" text="История трудоустройства" textAlignment="CENTER" wrapText="true" />
+                <Button fx:id="requestBtn" layoutX="465.0" layoutY="180.0" mnemonicParsing="false" prefHeight="50.0" prefWidth="105.0" text="Заявка" />
                 <Text fx:id="workMarkTxt" layoutX="40.0" layoutY="255.0" strokeType="OUTSIDE" strokeWidth="0.0" text="Заметки работодателя" visible="false">
                     <font>
                         <Font size="14.0" />
@@ -82,7 +92,7 @@
                 <RadioButton fx:id="eduRBtn" layoutX="40.0" layoutY="80.0" mnemonicParsing="false" text="Образовательная орг." visible="false" />
                 <ComboBox fx:id="professionBox" layoutX="215.0" layoutY="110.0" prefWidth="150.0" visible="false" />
                 <ComboBox fx:id="organizationBox" layoutX="40.0" layoutY="110.0" prefWidth="150.0" visible="false" />
-                <Button fx:id="chooseBtn" layoutX="14.0" layoutY="350.0" mnemonicParsing="false" text="Выбрать" />
+                <Button fx:id="chooseBtn" layoutX="14.0" layoutY="350.0" mnemonicParsing="false" text="Выбрать" visible="false" />
                 <TableView fx:id="requestTable" layoutX="14.0" layoutY="57.0" prefHeight="240.0" prefWidth="440.0" visible="false">
                     <columns>
                         <TableColumn prefWidth="126.4000244140625" text="Орагнизация" />
@@ -91,6 +101,7 @@
                         <TableColumn minWidth="0.0" prefWidth="93.60003662109375" text="Дата создания" />
                     </columns>
                 </TableView>
+            <DatePicker fx:id="datePicker" layoutX="179.0" layoutY="154.0" prefHeight="25.0" prefWidth="150.0" />
 
             </children></Pane>
     </children>
