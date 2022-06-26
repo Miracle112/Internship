@@ -65,7 +65,8 @@ public class AddVacancyController {
                 e.printStackTrace();
             }
             String requestAdd = "INSERT INTO practice.personnel (id_organization, id_profession, job_status, date_from) VALUES " +
-                    "("+ AuthorizationController.id_chief + ",(SELECT id_profession FROM practice.professions WHERE id_subject = " + id_sub +" and name_profession = '" + professions + "'),0,'" + dateTransformer() + "');";
+                    "("+ AuthorizationController.id_chief + ",(SELECT id_profession FROM practice.professions WHERE id_subject = "
+                    + id_sub +" and name_profession = '" + professions + "'),0,'" + dateTransformer() + "');";
             PreparedStatement prSt = null;
             try {
                 prSt = dbHandler.getDbConnection().prepareStatement(requestAdd);

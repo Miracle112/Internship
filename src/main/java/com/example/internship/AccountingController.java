@@ -93,7 +93,8 @@ public class AccountingController {
         List<Documents> documents = request.getResultList();
         ArrayList<String[]> listmas = new ArrayList<>();
         documents.stream().forEach(d -> {
-            String[] element = {d.getPersonByIdEmployee().getFullName(), d.getTypeDocByIdDocumentType().getDocumentName(), d.getNumber(), d.getIssuePlace(), d.getDocDate().toString()};
+            String[] element = {d.getPersonByIdEmployee().getFullName(), d.getTypeDocByIdDocumentType().getDocumentName(),
+                    d.getNumber(), d.getIssuePlace(), d.getDocDate().toString()};
             listmas.add(element);
         });
         List<String> list = List.of("ФИО", "Тип документа", "Номер", "Место выдачи", "Дата выдачи");
@@ -124,10 +125,13 @@ public class AccountingController {
         List<LaborBook> laborBook = request.getResultList();
         ArrayList<String[]> listmas = new ArrayList<>();
         laborBook.stream().forEach(l -> {
-            String[] element = {l.getPersonByIdEmployee().getFullName(), l.getOrganizationByIdOrganization().getShortName(), l.getProfessionsByIdProfession().getNameProfession(), l.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(), l.getNotEduProfession(), l.getNotEduOrganization(), l.getWorkMark(), l.getDateFrom().toString(), l.getDateTo().toString()};
+            String[] element = {l.getPersonByIdEmployee().getFullName(), l.getOrganizationByIdOrganization().getShortName(),
+                    l.getProfessionsByIdProfession().getNameProfession(), l.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(),
+                    l.getNotEduProfession(), l.getNotEduOrganization(), l.getWorkMark(), l.getDateFrom().toString(), l.getDateTo().toString()};
             listmas.add(element);
         });
-        List<String> list = List.of("ФИО", "Организация", "Профессия", "Предмет", "Не образовательная профессия", "Не образовательная организация", "Заметки", "Дата нанятия", "Дата увольнения");
+        List<String> list = List.of("ФИО", "Организация", "Профессия", "Предмет", "Не образовательная профессия",
+                "Не образовательная организация", "Заметки", "Дата нанятия", "Дата увольнения");
         try {
             fillHql(list, labTable, listmas);
         } catch (Exception throwables) {
@@ -139,8 +143,8 @@ public class AccountingController {
         List<Personnel> personnel = request.getResultList();
         ArrayList<String[]> listmas = new ArrayList<>();
         personnel.stream().forEach(p -> {
-            String[] element = {p.getIdPersonal().toString(), p.getIfExist(), p.getProfessionsByIdProfession().getNameProfession(), p.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(),
-            p.getJobStatus(), p.getDateFrom().toString()};
+            String[] element = {p.getIdPersonal().toString(), p.getIfExist(), p.getProfessionsByIdProfession().getNameProfession(),
+                    p.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(), p.getJobStatus(), p.getDateFrom().toString()};
             listmas.add(element);
         });
         List<String> list = List.of("Номер заявки", "ФИО", "Профессия", "Предмет", "Статус", "Дата создания");
