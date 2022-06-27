@@ -10,13 +10,15 @@ import javafx.fxml.FXMLLoader;
 import javafx.scene.Parent;
 import javafx.scene.Scene;
 import javafx.scene.control.*;
-import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import javafx.util.Callback;
 import org.hibernate.Session;
+import org.hibernate.query.Query;
 import ru.internship.hibernate.HibernateUtil;
 import ru.internship.hibernate.entity.Contacts;
 import ru.internship.hibernate.entity.Documents;
+import ru.internship.hibernate.entity.LaborBook;
+import ru.internship.hibernate.entity.Personnel;
 
 import java.io.IOException;
 import java.sql.Date;
@@ -25,33 +27,27 @@ import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 public class UserWindowController {
 
     @FXML private ComboBox<String> documents_combo;
-    @FXML private Button documents_btn;
-    @FXML private Label documents_label;
     @FXML private Button documents_save_btn;
     @FXML private TextField document_number_field;
     @FXML private Label document_number_label;
     @FXML private TextField issue_place_field;
-    @FXML private Label issue_place_label;
-    @FXML private Label doc_date_label;
     @FXML private ComboBox<String> social_network_combo;
-    @FXML private Button social_network_btn;
-    @FXML private Label social_network_label;
     @FXML private Label link_label;
     @FXML private TextField link_field;
     @FXML private Button social_network_save_btn;
-    @FXML private Button requestBtn;
     @FXML private TextField profession;
     @FXML private DatePicker datePicker;
     @FXML private TextField organization;
     @FXML private TextField workMark;
     @FXML private Button saveBtn;
-    @FXML private Button employmentBtn;
     @FXML private DatePicker dateFrom;
     @FXML private DatePicker dateTo;
     @FXML private RadioButton noteduRBtn;
@@ -59,29 +55,51 @@ public class UserWindowController {
     @FXML private ComboBox<String> professionBox;
     @FXML private ComboBox<String> organizationBox;
     @FXML private Button chooseBtn;
-    @FXML private Text dateFromTxt;
-    @FXML private Text dateToTxt;
-    @FXML private Text workMarkTxt;
     @FXML private TableView<ObservableList> requestTable;
-    private ObservableList<String> profs = FXCollections.observableArrayList();
-    private ObservableList<String> orgs = FXCollections.observableArrayList();
-
-    DBHandler dbHandler = new DBHandler();
     @FXML
     private Button canclebtn;
     private final String[] listDocuments = new String[]{"Паспорт", "СНИЛС", "ИНН", "Полис", "Военный билет"};
     private String selectDocument = "";
-
     private final String[] listSocialNetwork = new String[]{"Номер телефона", "Электронная почта", "Вконтакте",
             "Viber", "Telegram", "WhatsApp", "ICQ", "ОК"};
-    private String selectSocialNetwork = "";
+
+    private final String[] listProfessions = new String[]{"Директор", "Завуч", "Библиотекарь",
+            "Преподователь начальных классов", "Преподаватель русского", "Преподаватель математики", "Преподаватель истории", "Преподаватель физкультуры",
+            "Преподаватель биологии", "Преподаватель химии","Преподаватель физики","Преподаватель географии","Преподаватель музыки","Преподаватель ОБЖ",
+            "Преподаватель литературы", "Преподаватель английского", "Преподаватель ИЗО","Преподаватель технологии"};
+
+    private final String[] listOrganization = new String[]{"ПГУ", "Лицей №55", "Школа №56"};
+
+    private String selectProfession = "";
+
+    private String selectOrganization = "";
 
     LocalDate dateLD;
     Date date;
     String formattedDate;
 
+
+    private void fillVacancy(Query request) {
+
+        List<Personnel> personnel = request.getResultList();
+        ArrayList<String[]> listmas = new ArrayList<>();
+        personnel.stream().forEach(p -> {
+            String[] element = {p.getOrganizationByIdOrganization().getShortName(), p.getProfessionsByIdProfession().getNameProfession(),
+                    p.getProfessionsByIdProfession().getSubjectsByIdSubject().getNameSubject(), p.getDateFrom().toString()};
+            listmas.add(element);
+        });
+        List<String> list = List.of("Организация", "Профессия", "Предмет", "Дата создания");
+        try {
+            fillHql(list, requestTable, listmas);
+        } catch (Exception throwables) {
+            throwables.printStackTrace();
+        }
+    }
+
     @FXML
     private void initialize() {
+
+
         FXMLLoader loader = new FXMLLoader();
         Session session = HibernateUtil.getSessionFactory().openSession();
 
@@ -118,7 +136,7 @@ public class UserWindowController {
         documents_save_btn.setOnAction(event -> {
             dateLD = datePicker.getValue();
 
-            if(dateLD != null){
+            if (dateLD != null) {
                 formattedDate = dateLD.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
                 date = Date.valueOf(formattedDate);
             }
@@ -126,7 +144,7 @@ public class UserWindowController {
                 session.getTransaction().begin();
                 Documents documents = new Documents();
                 documents.setIdEmployee(AuthorizationController.id_employee);
-                documents.setIdDocumentType( DocumentsType.get(documents_combo.getValue()));
+                documents.setIdDocumentType(DocumentsType.get(documents_combo.getValue()));
                 documents.setNumber(document_number_field.getText());
                 documents.setIssuePlace(issue_place_field.getText());
                 documents.setDocDate(date);
@@ -136,33 +154,45 @@ public class UserWindowController {
         });
 
         Map<String, Integer> SocialNetworkType = new HashMap<>();
-        SocialNetworkType.put("Номер телефона", 1);
-        SocialNetworkType.put("Электронная почта", 2);
-        SocialNetworkType.put("Вконтакте", 3);
-        SocialNetworkType.put("Viber", 4);
-        SocialNetworkType.put("Telegram", 5);
-        SocialNetworkType.put("WhatsApp", 4);
-        SocialNetworkType.put("ICQ", 5);
-        SocialNetworkType.put("ОК", 6);
+        SocialNetworkType.put("Номер телефона", 1);SocialNetworkType.put("Электронная почта", 2);
+        SocialNetworkType.put("Вконтакте", 3);SocialNetworkType.put("Viber", 4);
+        SocialNetworkType.put("Telegram", 5);SocialNetworkType.put("WhatsApp", 4);
+        SocialNetworkType.put("ICQ", 5);SocialNetworkType.put("ОК", 6);
 
         Map<String, String> SocialNetworkList = new HashMap<>();
-        SocialNetworkList.put("Номер телефона", "Номер");
-        SocialNetworkList.put("Электронная почта", "Адресс");
-        SocialNetworkList.put("Вконтакте", "Ссылка");
-        SocialNetworkList.put("Viber", "Номер");
-        SocialNetworkList.put("Telegram", "Номер");
-        SocialNetworkList.put("WhatsApp", "Номер");
-        SocialNetworkList.put("ICQ", "Номер");
-        SocialNetworkList.put("ОК", "Ссылка");
+        SocialNetworkList.put("Номер телефона", "Номер");SocialNetworkList.put("Электронная почта", "Адресс");
+        SocialNetworkList.put("Вконтакте", "Ссылка");SocialNetworkList.put("Viber", "Номер");
+        SocialNetworkList.put("Telegram", "Номер");SocialNetworkList.put("WhatsApp", "Номер");
+        SocialNetworkList.put("ICQ", "Номер");SocialNetworkList.put("ОК", "Ссылка");
+
+        Map<String, Integer> ProfessionsList = new HashMap<>();
+        ProfessionsList.put("Директор", 0);ProfessionsList.put("Завуч", 0);ProfessionsList.put("Библиотекарь", 0);
+        ProfessionsList.put("Преподаватель начальных классов", 0);ProfessionsList.put("Преподаватель русского", 1);
+        ProfessionsList.put("Преподаватель математики", 2);ProfessionsList.put("Преподаватель истории", 3);
+        ProfessionsList.put("Преподаватель физкультуры", 4);ProfessionsList.put("Преподаватель биологии", 5);
+        ProfessionsList.put("Преподаватель химии", 6);ProfessionsList.put("Преподаватель физики", 7);
+        ProfessionsList.put("Преподаватель географии", 8);ProfessionsList.put("Преподаватель музыки", 9);
+        ProfessionsList.put("Преподаватель ОБЖ", 10);ProfessionsList.put("Преподаватель литературы", 11);
+        ProfessionsList.put("Преподаватель английского", 12);ProfessionsList.put("Преподаватель ИЗО", 13);
+        ProfessionsList.put("Преподаватель технологии", 14);
+
+        Map<String, Integer> OrganizationList = new HashMap<>();
+        OrganizationList.put("ПГУ", 1);OrganizationList.put("Лицей №55", 2);OrganizationList.put("Школа №56", 3);
 
         social_network_combo.getItems().addAll(this.listSocialNetwork);
         social_network_combo.setValue("Номер телефона");
-        social_network_combo.setOnAction(this::getSocialNetwork);
-
         social_network_combo.setOnAction(event -> {
             link_label.setText(SocialNetworkList.get(social_network_combo.getValue()));
         });
 
+
+        professionBox.getItems().addAll(this.listProfessions);
+        professionBox.setValue("Директор");
+        professionBox.setOnAction(this::getProfession);
+
+        organizationBox.getItems().addAll(this.listOrganization);
+        organizationBox.setValue("ПГУ");
+        organizationBox.setOnAction(this::getOrganization);
 
         social_network_save_btn.setOnAction(event -> {
             if (!(link_field.getText().isEmpty())) {
@@ -176,17 +206,13 @@ public class UserWindowController {
             }
         });
 
-
-
-
+        organization.setVisible(false);
+        profession.setVisible(false);
 
         ToggleGroup group = new ToggleGroup();
         eduRBtn.setToggleGroup(group);
         noteduRBtn.setToggleGroup(group);
         eduRBtn.setSelected(true);
-
-        initOrganizations();
-        initProfessions();
 
         eduRBtn.setOnAction(event -> {
             organizationBox.setVisible(true);
@@ -203,179 +229,36 @@ public class UserWindowController {
 
         saveBtn.setOnAction(event -> {
             if (eduRBtn.isSelected()) {
-                if (!(organizationBox.getValue() == null || professionBox.getValue() == null || dateTo.getValue() == null
-                        || dateFrom.getValue() == null || workMark.getText().isEmpty())) {
-                    try {
-                        PreparedStatement statement = dbHandler.getDbConnection().prepareStatement("INSERT into labor_book(id_lb,id_employee,id_organization,id_profession,work_mark,date_from,date_to) VALUES(?,?,?,?,?,?,?)");
-                        statement.setInt(1, 1);
-                        statement.setInt(2, 1);
-                        statement.setInt(3, 1);
-                        statement.setInt(4, 5);
-                        statement.setString(5, workMark.getText());
-                        statement.setDate(6, Date.valueOf(dateFrom.getValue()));
-                        statement.setDate(7, Date.valueOf(dateTo.getValue()));
-                        statement.executeUpdate();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
-                }
-            } else if (noteduRBtn.isSelected()) {
-                if (!(dateTo.getValue() == null || dateFrom.getValue() == null || workMark.getText().isEmpty()
-                        || organization.getText().isEmpty() || profession.getText().isEmpty())) {
-                    try {
-                        PreparedStatement statement = dbHandler.getDbConnection().prepareStatement("INSERT into labor_book(id_lb,id_employee,not_edu_organization,not_edu_profession,work_mark,date_from,date_to) VALUES(?,?,?,?,?,?,?)");
-                        statement.setInt(1, 2);
-                        statement.setInt(2, 3);
-                        statement.setString(3, organization.getText());
-                        statement.setString(4, profession.getText());
-                        statement.setString(5, workMark.getText());
-                        statement.setDate(6, Date.valueOf(dateFrom.getValue()));
-                        statement.setDate(7, Date.valueOf(dateTo.getValue()));
-                        statement.executeUpdate();
-                    } catch (Exception ex) {
-                        ex.printStackTrace();
-                    }
+                if (!(organizationBox.getValue() == null && professionBox.getValue() == null && dateTo.getValue() == null
+                        && dateFrom.getValue() == null && workMark.getText().isEmpty())) {
+                    session.getTransaction().begin();
+                    LaborBook laborBook = new LaborBook();
+                    laborBook.setIdEmployee(AuthorizationController.id_employee);
+                    laborBook.setIdOrganization(OrganizationList.get(selectOrganization));
+                    laborBook.setIdProfession(ProfessionsList.get(selectProfession));
+                    laborBook.setWorkMark(workMark.getText());
+                    laborBook.setDateFrom(Date.valueOf(dateFrom.getValue()));
+                    laborBook.setDateTo(Date.valueOf(dateTo.getValue()));
+                    session.save(laborBook);
+                    session.getTransaction().commit();
+
                 }
             }
-        });
-
-
-        documents_btn.setOnAction(event -> {
-            documents_label.setVisible(true);
-            documents_save_btn.setVisible(true);
-            document_number_field.setVisible(true);
-            document_number_label.setVisible(true);
-            issue_place_field.setVisible(true);
-            issue_place_label.setVisible(true);
-            datePicker.setVisible(true);
-            doc_date_label.setVisible(true);
-            documents_combo.setVisible(true);
-
-            social_network_label.setVisible(false);
-            social_network_combo.setVisible(false);
-            link_field.setVisible(false);
-            link_label.setVisible(false);
-            social_network_save_btn.setVisible(false);
-
-            dateFromTxt.setVisible(false);
-            dateToTxt.setVisible(false);
-            workMarkTxt.setVisible(false);
-            saveBtn.setVisible(false);
-            organization.setVisible(false);
-            profession.setVisible(false);
-            workMark.setVisible(false);
-            dateFrom.setVisible(false);
-            dateTo.setVisible(false);
-            eduRBtn.setVisible(false);
-            noteduRBtn.setVisible(false);
-            organizationBox.setVisible(false);
-            professionBox.setVisible(false);
-            chooseBtn.setVisible(false);
-            requestTable.setVisible(false);
-        });
-
-        social_network_btn.setOnAction(event -> {
-            documents_label.setVisible(false);
-            documents_save_btn.setVisible(false);
-            document_number_field.setVisible(false);
-            document_number_label.setVisible(false);
-            issue_place_field.setVisible(false);
-            issue_place_label.setVisible(false);
-            datePicker.setVisible(false);
-            doc_date_label.setVisible(false);
-            documents_combo.setVisible(false);
-
-            social_network_label.setVisible(true);
-            social_network_combo.setVisible(true);
-            link_field.setVisible(true);
-            link_label.setVisible(true);
-            social_network_save_btn.setVisible(true);
-
-            dateFromTxt.setVisible(false);
-            dateToTxt.setVisible(false);
-            workMarkTxt.setVisible(false);
-            saveBtn.setVisible(false);
-            organization.setVisible(false);
-            profession.setVisible(false);
-            workMark.setVisible(false);
-            dateFrom.setVisible(false);
-            dateTo.setVisible(false);
-            eduRBtn.setVisible(false);
-            noteduRBtn.setVisible(false);
-            organizationBox.setVisible(false);
-            professionBox.setVisible(false);
-            chooseBtn.setVisible(false);
-            requestTable.setVisible(false);
-        });
-
-        requestBtn.setOnAction(event -> {
-            documents_label.setVisible(false);
-            documents_save_btn.setVisible(false);
-            document_number_field.setVisible(false);
-            document_number_label.setVisible(false);
-            issue_place_field.setVisible(false);
-            issue_place_label.setVisible(false);
-            datePicker.setVisible(false);
-            doc_date_label.setVisible(false);
-            documents_combo.setVisible(false);
-
-            social_network_label.setVisible(false);
-            social_network_combo.setVisible(false);
-            link_field.setVisible(false);
-            link_label.setVisible(false);
-            social_network_save_btn.setVisible(false);
-
-            dateFromTxt.setVisible(false);
-            dateToTxt.setVisible(false);
-            workMarkTxt.setVisible(false);
-            saveBtn.setVisible(false);
-            organization.setVisible(false);
-            profession.setVisible(false);
-            workMark.setVisible(false);
-            dateFrom.setVisible(false);
-            dateTo.setVisible(false);
-            eduRBtn.setVisible(false);
-            noteduRBtn.setVisible(false);
-            organizationBox.setVisible(false);
-            professionBox.setVisible(false);
-            chooseBtn.setVisible(true);
-            requestTable.setVisible(true);
-
-
-        });
-
-        employmentBtn.setOnAction(event -> {
-            documents_label.setVisible(false);
-            documents_save_btn.setVisible(false);
-            document_number_field.setVisible(false);
-            document_number_label.setVisible(false);
-            issue_place_field.setVisible(false);
-            issue_place_label.setVisible(false);
-            datePicker.setVisible(false);
-            doc_date_label.setVisible(false);
-            documents_combo.setVisible(false);
-
-            social_network_label.setVisible(false);
-            social_network_combo.setVisible(false);
-            link_field.setVisible(false);
-            link_label.setVisible(false);
-            social_network_save_btn.setVisible(false);
-
-            chooseBtn.setVisible(false);
-            requestTable.setVisible(false);
-            dateFromTxt.setVisible(true);
-            dateToTxt.setVisible(true);
-            workMarkTxt.setVisible(true);
-            saveBtn.setVisible(true);
-            organization.setVisible(true);
-            profession.setVisible(true);
-            workMark.setVisible(true);
-            dateFrom.setVisible(true);
-            dateTo.setVisible(true);
-            eduRBtn.setVisible(true);
-            noteduRBtn.setVisible(true);
-            organizationBox.setVisible(true);
-            professionBox.setVisible(true);
+            else if (noteduRBtn.isSelected()) {
+                if (!(dateTo.getValue() == null || dateFrom.getValue() == null || workMark.getText().isEmpty()
+                        || organization.getText().isEmpty() || profession.getText().isEmpty())) {
+                    session.getTransaction().begin();
+                    LaborBook laborBook = new LaborBook();
+                    laborBook.setIdEmployee(AuthorizationController.id_employee);
+                    laborBook.setNotEduOrganization( organization.getText());
+                    laborBook.setNotEduProfession(profession.getText());
+                    laborBook.setWorkMark(workMark.getText());
+                    laborBook.setDateFrom(Date.valueOf(dateFrom.getValue()));
+                    laborBook.setDateTo(Date.valueOf(dateTo.getValue()));
+                    session.save(laborBook);
+                    session.getTransaction().commit();
+                }
+            }
         });
 
         canclebtn.setOnAction(event -> {
@@ -393,92 +276,60 @@ public class UserWindowController {
             stage.show();
         });
 
-        String request = "SELECT id_personal as 'ID', (select organization.short_name from organization where personnel.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', date_from as 'Дата создания' from personnel where personnel.job_status = 0;";
-        try {
-            fill(request, requestTable);
-        } catch (SQLException throwables) {
-            throwables.printStackTrace();
-        }
+
+      Query requestPersonnel = session.createQuery("from Personnel where jobStatus =: jobStatus");
+      requestPersonnel.setParameter("jobStatus", "0");
+      fillVacancy(requestPersonnel);
+
+
         chooseBtn.setOnAction(actionEvent -> {
             ObservableList selectId = requestTable.getSelectionModel().getSelectedItem();
             Object selectIndex = selectId.get(0);
-            String upRequest = "UPDATE personnel SET job_status = 1 WHERE(id_personal = " + selectIndex + ")";
-            try {
-                PreparedStatement prSt = dbHandler.getDbConnection().prepareStatement(upRequest);
-                prSt.executeUpdate();
-            } catch (SQLException | ClassNotFoundException ex) {
-                ex.printStackTrace();
-            }
+            session.getTransaction().begin();
+            Personnel personnel = new Personnel();
+            personnel.setJobStatus("1");
+            personnel.setIdEmployee((Integer) selectIndex);
+            session.update(personnel);
+            session.getTransaction().commit();
+
             requestTable.getItems().clear();
-            String requestPersonnel = "SELECT id_personal as 'ID', (select organization.short_name from organization where personnel.id_organization = organization.id_organization) as 'Организация', (select name_profession from practice.professions WHERE personnel.id_profession = professions.id_profession) as 'Профессия', (select (select name_subject from subjects where professions.id_subject = subjects.id_subject) FROM professions WHERE personnel.id_profession = professions.id_profession) as 'Предмет', date_from as 'Дата создания' from personnel where personnel.job_status = 0;";
-            try {
-                fill(requestPersonnel, requestTable);
-            } catch (SQLException ex) {
-                ex.printStackTrace();
-            }
+            fillVacancy(requestPersonnel);
         });
     }
 
-
-
-    private void getDocument(ActionEvent actionEvent1) {
-        selectDocument = documents_combo.getValue();
+    private void getDocument(ActionEvent actionEvent1) {selectDocument = documents_combo.getValue();}
+    private void getProfession(ActionEvent actionEvent1) {
+        selectProfession = professionBox.getValue();
+    }
+    private void getOrganization(ActionEvent actionEvent1) {
+        selectOrganization = organizationBox.getValue();
     }
 
-    private void getSocialNetwork(ActionEvent actionEvent1) {
-        selectSocialNetwork = social_network_combo.getValue();
-    }
-    private void initProfessions(){
-        try{
-            dbHandler.dbConnection = dbHandler.getDbConnection();
-            ResultSet resSet = dbHandler.dbConnection.createStatement().executeQuery("SELECT name_profession FROM `professions`");
-            while (resSet.next()) {
-                profs.add(resSet.getString("name_profession"));
-            }
-            professionBox.getItems().addAll(profs);
-        } catch (SQLException | ClassNotFoundException ex){
-            ex.printStackTrace();
-        }
-    }
-    private void initOrganizations(){
-        try{
-            dbHandler.dbConnection = dbHandler.getDbConnection();
-            ResultSet resSet = dbHandler.dbConnection.createStatement().executeQuery("SELECT short_name FROM `organization`");
-            while (resSet.next()) {
-                orgs.add(resSet.getString("short_name"));
-            }
-            organizationBox.getItems().addAll(orgs);
-        } catch (SQLException | ClassNotFoundException ex){
-            ex.printStackTrace();
-        }
-    }
-
-    public static void fill(String querry, TableView<ObservableList> personalDataTable1) throws SQLException {
-        personalDataTable1.getColumns().clear();
+    public static void fillHql(List<String> labels, TableView<ObservableList> table, ArrayList<String[]> args) {
+        table.getColumns().clear();
         ObservableList<ObservableList> data = FXCollections.observableArrayList();
-        DBHandler dbHandler = new DBHandler();
-        ResultSet resultSet = dbHandler.querry(querry);
-        for (int i = 0; i < resultSet.getMetaData().getColumnCount(); i++) {
+        for (int i = 0; i < labels.size(); i++) {
             final int j = i;
-            TableColumn col = new TableColumn(resultSet.getMetaData().getColumnLabel(i + 1));
+            TableColumn col = new TableColumn(labels.get(i));
             col.setCellValueFactory(new Callback<TableColumn.CellDataFeatures<ObservableList, String>, ObservableValue<String>>() {
                 public ObservableValue<String> call(TableColumn.CellDataFeatures<ObservableList, String> param) {
-                    if(param.getValue().get(j) == null){
+                    if (param.getValue().get(j) == null) {
                         return new SimpleStringProperty("");
                     } else {
                         return new SimpleStringProperty(param.getValue().get(j).toString());
                     }
                 }
             });
-            personalDataTable1.getColumns().addAll(col);
+            table.getColumns().addAll(col);
         }
-        while (resultSet.next()) {
+        for (int j = 0; j < args.size(); j++) {
             ObservableList<String> row = FXCollections.observableArrayList();
-            for (int i = 1; i <= resultSet.getMetaData().getColumnCount(); i++) {
-                row.add(resultSet.getString(i));
+            for (int i = 0; i < args.get(j).length; i++) {
+                row.add(args.get(j)[i]);
             }
             data.add(row);
         }
-        personalDataTable1.setItems(data);
+        table.setItems(data);
     }
+
 }
